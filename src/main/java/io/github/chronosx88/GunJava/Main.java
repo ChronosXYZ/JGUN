@@ -2,6 +2,7 @@ package io.github.chronosx88.GunJava;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,7 +19,9 @@ public class Main {
 
             @Override
             public void onMessage(String message) {
-                System.out.println(message);
+                JSONObject msg = new JSONObject(message);
+                System.out.println(msg);
+                this.send(message);
             }
 
             @Override
