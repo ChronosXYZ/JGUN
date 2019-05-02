@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+group 'io.github.chronosx88'
+version '0.1.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.java-websocket:Java-WebSocket:1.4.0'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
