@@ -40,9 +40,9 @@ public class Dup {
         }
     }
 
-    public String random() {
+    public static String random(int len) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < randomPack.length; i++) {
+        for (int i = 0; i < len; i++) {
             sb.append(randomPack[random.nextInt(randomPack.length)]);
         }
         return sb.toString();

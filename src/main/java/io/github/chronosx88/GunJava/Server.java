@@ -6,12 +6,14 @@ import org.java_websocket.server.WebSocketServer;
 import org.json.JSONObject;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class Server extends WebSocketServer {
     private Timer timer = new Timer(true);
     private Dup dup = new Dup();
+    private ArrayList<WebSocket> peers = new ArrayList<>();
+    private Graph graph = new Graph();
 
     public Server(int port) {
         super(new InetSocketAddress(port));
@@ -19,16 +21,7 @@ public class Server extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        final int[] count = {0};
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                count[0] += 1;
-                JSONObject msg = new JSONObject();
-                msg.put("#", dup.track(String.valueOf(count[0])));
-                conn.send(msg.toString());
-            }
-        }, 0, 1000);
+        peers.add(conn);
     }
 
     @Override
@@ -39,9 +32,16 @@ public class Server extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         JSONObject msg = new JSONObject(message);
-        //if(dup.check(msg.getString("#"))) { return; }
+        if(dup.check(msg.getString("#"))) { return; }
         dup.track(msg.getString("#"));
-        System.out.println("received: " + msg.toString());
+        if(msg.opt("put") != null) {
+            HAM.mix(new Graph(msg.getJSONObject("put")), graph);
+            System.out.println("----------------");
+            System.out.println(graph.toPrettyString());
+        }
+        for (WebSocket peer : peers) {
+            peer.send(message);
+        }
     }
 
     @Override

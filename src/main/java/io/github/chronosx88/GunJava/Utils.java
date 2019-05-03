@@ -1,5 +1,7 @@
 package io.github.chronosx88.GunJava;
 
+import org.json.JSONObject;
+
 public class Utils {
     public static Thread setTimeout(Runnable runnable, int delay){
         Thread thread = new Thread(() -> {
@@ -13,5 +15,14 @@ public class Utils {
         });
         thread.start();
         return thread;
+    }
+
+    public static Node newNode(String soul, JSONObject data) {
+        JSONObject states = new JSONObject();
+        for (String key : data.keySet()) {
+            states.put(key, System.currentTimeMillis());
+        }
+        data.put("_", new JSONObject().put("#", soul).put(">", states));
+        return new Node(data);
     }
 }
