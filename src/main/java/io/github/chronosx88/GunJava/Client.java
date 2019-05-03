@@ -1,5 +1,7 @@
 package io.github.chronosx88.GunJava;
 
+import io.github.chronosx88.GunJava.storageBackends.MemoryBackend;
+import io.github.chronosx88.GunJava.storageBackends.StorageBackend;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONObject;
@@ -10,7 +12,7 @@ import java.net.URISyntaxException;
 
 public class Client extends WebSocketClient {
     private Dup dup = new Dup();
-    private Graph graph = new Graph();
+    private StorageBackend graph = new MemoryBackend();
 
     public Client(InetAddress address, int port) throws URISyntaxException {
         super(new URI("ws://" + address.getHostAddress() + ":" + port));
@@ -56,10 +58,10 @@ public class Client extends WebSocketClient {
         if(dup.check(msg.getString("#"))){ return; }
         dup.track(msg.getString("#"));
         if(msg.opt("put") != null) {
-            HAM.mix(new Graph(msg.getJSONObject("put")), graph);
+            HAM.mix(new MemoryBackend(msg.getJSONObject("put")), graph);
         }
         if(msg.opt("get") != null) {
-            Graph getResults = Utils.getRequest(msg.getJSONObject("get"), graph);
+            MemoryBackend getResults = Utils.getRequest(msg.getJSONObject("get"), graph);
             JSONObject ack = new JSONObject()
                     .put("#", dup.track(Dup.random()))
                     .put("@", msg.getString("#"))

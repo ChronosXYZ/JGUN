@@ -1,5 +1,6 @@
 package io.github.chronosx88.GunJava;
 
+import io.github.chronosx88.GunJava.storageBackends.MemoryBackend;
 import org.json.JSONObject;
 
 public class Node implements Comparable<Node> {
@@ -44,7 +45,7 @@ public class Node implements Comparable<Node> {
         return values.optJSONObject(key) != null;
     }
 
-    public Node getNode(String key, Graph g) {
+    public Node getNode(String key, MemoryBackend g) {
         String soulRef = values.getJSONObject(key).getString("#");
         return g.getNode(soulRef);
     }

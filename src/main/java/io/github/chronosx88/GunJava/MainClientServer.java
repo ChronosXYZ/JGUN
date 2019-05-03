@@ -1,7 +1,6 @@
 package io.github.chronosx88.GunJava;
 
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 

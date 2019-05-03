@@ -1,21 +1,22 @@
-package io.github.chronosx88.GunJava;
+package io.github.chronosx88.GunJava.storageBackends;
 
+import io.github.chronosx88.GunJava.Node;
 import org.json.JSONObject;
 
 import java.util.*;
 
-public class Graph {
+public class MemoryBackend implements StorageBackend {
 
     private final HashMap<String, Node> nodes;
 
-    public Graph(JSONObject source) {
+    public MemoryBackend(JSONObject source) {
         nodes = new LinkedHashMap<>();
 
         for (String soul : source.keySet())
             nodes.put(soul, new Node(source.getJSONObject(soul)));
     }
 
-    public Graph() {
+    public MemoryBackend() {
         nodes = new LinkedHashMap<>();
     }
 

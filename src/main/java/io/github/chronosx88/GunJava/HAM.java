@@ -1,5 +1,7 @@
 package io.github.chronosx88.GunJava;
 
+import io.github.chronosx88.GunJava.storageBackends.MemoryBackend;
+import io.github.chronosx88.GunJava.storageBackends.StorageBackend;
 import org.json.JSONObject;
 
 import java.util.Map;
@@ -53,9 +55,9 @@ public class HAM {
         return result;
     }
 
-    public static Graph mix(Graph change, Graph data) {
+    public static MemoryBackend mix(MemoryBackend change, StorageBackend data) {
         long machine = System.currentTimeMillis();
-        Graph diff = null;
+        MemoryBackend diff = null;
         for(Map.Entry<String, Node> entry : change.entries()) {
             Node node = entry.getValue();
             for(String key : node.values.keySet()) {
@@ -65,7 +67,7 @@ public class HAM {
                 long was = -1;
                 Object known = null;
                 if(data == null) {
-                    data = new Graph();
+                    data = new MemoryBackend();
                 }
                 if(data.hasNode(node.soul)) {
                     if(data.getNode(node.soul).states.opt(key) != null) {
@@ -79,14 +81,14 @@ public class HAM {
                     if(ham.defer) {
                         System.out.println("DEFER: " + key + " " + value);
                         // Hack for accessing value in lambda without making the variable final
-                        Graph[] graph = new Graph[] {data};
+                        StorageBackend[] graph = new StorageBackend[] {data};
                         Utils.setTimeout(() -> mix(node, graph[0]), (int) (state - System.currentTimeMillis()));
                     }
                     continue;
                 }
 
                 if(diff == null) {
-                    diff = new Graph();
+                    diff = new MemoryBackend();
                 }
 
                 if(!diff.hasNode(node.soul)) {
@@ -108,9 +110,9 @@ public class HAM {
         return diff;
     }
 
-    public static Graph mix(Node incomingNode, Graph data) {
+    public static MemoryBackend mix(Node incomingNode, StorageBackend data) {
         long machine = System.currentTimeMillis();
-        Graph diff = null;
+        MemoryBackend diff = null;
 
         for(String key : incomingNode.values.keySet()) {
             Object value = incomingNode.values.get(key);
@@ -119,7 +121,7 @@ public class HAM {
             long was = -1;
             Object known = null;
             if(data == null) {
-                data = new Graph();
+                data = new MemoryBackend();
             }
             if(data.hasNode(incomingNode.soul)) {
                 if(data.getNode(incomingNode.soul).states.opt(key) != null) {
@@ -133,14 +135,14 @@ public class HAM {
                 if(ham.defer) {
                     System.out.println("DEFER: " + key + " " + value);
                     // Hack for accessing value in lambda without making the variable final
-                    Graph[] graph = new Graph[] {data};
+                    StorageBackend[] graph = new StorageBackend[] {data};
                     Utils.setTimeout(() -> mix(incomingNode, graph[0]), (int) (state - System.currentTimeMillis()));
                 }
                 continue;
             }
 
             if(diff == null) {
-                diff = new Graph();
+                diff = new MemoryBackend();
             }
 
             if(!diff.hasNode(incomingNode.soul)) {

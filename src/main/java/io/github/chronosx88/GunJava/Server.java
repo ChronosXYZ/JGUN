@@ -1,5 +1,6 @@
 package io.github.chronosx88.GunJava;
 
+import io.github.chronosx88.GunJava.storageBackends.MemoryBackend;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -11,7 +12,7 @@ import java.util.Timer;
 public class Server extends WebSocketServer {
     private Timer timer = new Timer(true);
     private Dup dup = new Dup();
-    private Graph graph = new Graph();
+    private MemoryBackend graph = new MemoryBackend();
 
     public Server(int port) {
         super(new InetSocketAddress(port));
@@ -34,10 +35,10 @@ public class Server extends WebSocketServer {
         if(dup.check(msg.getString("#"))) { return; }
         dup.track(msg.getString("#"));
         if(msg.opt("put") != null) {
-            HAM.mix(new Graph(msg.getJSONObject("put")), graph);
+            HAM.mix(new MemoryBackend(msg.getJSONObject("put")), graph);
         }
         if(msg.opt("get") != null) {
-            Graph result = Utils.getRequest(msg.optJSONObject("get"), graph);
+            MemoryBackend result = Utils.getRequest(msg.optJSONObject("get"), graph);
             if(!result.isEmpty()) {
                 JSONObject ack = new JSONObject();
                 emit(ack
