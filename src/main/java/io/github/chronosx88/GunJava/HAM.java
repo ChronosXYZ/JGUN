@@ -2,10 +2,11 @@ package io.github.chronosx88.GunJava;
 
 import org.json.JSONObject;
 
-import java.util.Iterator;
 import java.util.Map;
 
 public class HAM {
+    private static long defer = Long.MAX_VALUE;
+
     static class HAMResult {
         public boolean defer = false;
         public boolean historical = false;
@@ -52,7 +53,7 @@ public class HAM {
         return result;
     }
 
-    public static Graph mix(Graph change, Graph graph) {
+    public static Graph mix(Graph change, Graph data) {
         long machine = System.currentTimeMillis();
         Graph diff = null;
         for(Map.Entry<String, Node> entry : change.entries()) {
@@ -63,21 +64,23 @@ public class HAM {
                 long state = node.states.getLong(key);
                 long was = -1;
                 Object known = null;
-                if(graph == null) {
-                    graph = new Graph();
+                if(data == null) {
+                    data = new Graph();
                 }
-                if(graph.hasNode(node.soul)) {
-                    if(graph.getNode(node.soul).states.opt(key) != null) {
-                        was = graph.getNode(node.soul).states.getLong(key);
+                if(data.hasNode(node.soul)) {
+                    if(data.getNode(node.soul).states.opt(key) != null) {
+                        was = data.getNode(node.soul).states.getLong(key);
                     }
-                    known = graph.getNode(node.soul).values.opt(key) == null ? 0 : graph.getNode(node.soul).values.opt(key);
+                    known = data.getNode(node.soul).values.opt(key) == null ? 0 : data.getNode(node.soul).values.opt(key);
                 }
 
                 HAMResult ham = ham(machine, state, was, value, known);
                 if(!ham.incoming) {
                     if(ham.defer) {
                         System.out.println("DEFER: " + key + " " + value);
-                        // FIXME
+                        // Hack for accessing value in lambda without making the variable final
+                        Graph[] graph = new Graph[] {data};
+                        Utils.setTimeout(() -> mix(node, graph[0]), (int) (state - System.currentTimeMillis()));
                     }
                     continue;
                 }
@@ -90,18 +93,70 @@ public class HAM {
                     diff.addNode(node.soul, Utils.newNode(node.soul, new JSONObject()));
                 }
 
-                if(!graph.hasNode(node.soul)) {
-                    graph.addNode(node.soul, Utils.newNode(node.soul, new JSONObject()));
+                if(!data.hasNode(node.soul)) {
+                    data.addNode(node.soul, Utils.newNode(node.soul, new JSONObject()));
                 }
 
-                graph.getNode(node.soul).values.put(key, value);
+                data.getNode(node.soul).values.put(key, value);
                 diff.getNode(node.soul).values.put(key, value);
 
                 diff.getNode(node.soul).states.put(key, state);
-                graph.getNode(node.soul).states.put(key, state);
+                data.getNode(node.soul).states.put(key, state);
             }
         }
 
+        return diff;
+    }
+
+    public static Graph mix(Node incomingNode, Graph data) {
+        long machine = System.currentTimeMillis();
+        Graph diff = null;
+
+        for(String key : incomingNode.values.keySet()) {
+            Object value = incomingNode.values.get(key);
+            if ("_".equals(key)) { continue; }
+            long state = incomingNode.states.getLong(key);
+            long was = -1;
+            Object known = null;
+            if(data == null) {
+                data = new Graph();
+            }
+            if(data.hasNode(incomingNode.soul)) {
+                if(data.getNode(incomingNode.soul).states.opt(key) != null) {
+                    was = data.getNode(incomingNode.soul).states.getLong(key);
+                }
+                known = data.getNode(incomingNode.soul).values.opt(key) == null ? 0 : data.getNode(incomingNode.soul).values.opt(key);
+            }
+
+            HAMResult ham = ham(machine, state, was, value, known);
+            if(!ham.incoming) {
+                if(ham.defer) {
+                    System.out.println("DEFER: " + key + " " + value);
+                    // Hack for accessing value in lambda without making the variable final
+                    Graph[] graph = new Graph[] {data};
+                    Utils.setTimeout(() -> mix(incomingNode, graph[0]), (int) (state - System.currentTimeMillis()));
+                }
+                continue;
+            }
+
+            if(diff == null) {
+                diff = new Graph();
+            }
+
+            if(!diff.hasNode(incomingNode.soul)) {
+                diff.addNode(incomingNode.soul, Utils.newNode(incomingNode.soul, new JSONObject()));
+            }
+
+            if(!data.hasNode(incomingNode.soul)) {
+                data.addNode(incomingNode.soul, Utils.newNode(incomingNode.soul, new JSONObject()));
+            }
+
+            data.getNode(incomingNode.soul).values.put(key, value);
+            diff.getNode(incomingNode.soul).values.put(key, value);
+
+            diff.getNode(incomingNode.soul).states.put(key, state);
+            data.getNode(incomingNode.soul).states.put(key, state);
+        }
         return diff;
     }
 }

@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 
 public class Client extends WebSocketClient {
     private Dup dup = new Dup();
+    private Graph graph = new Graph();
 
     public Client(InetAddress address, int port) throws URISyntaxException {
         super(new URI("ws://" + address.getHostAddress() + ":" + port));
@@ -20,31 +21,53 @@ public class Client extends WebSocketClient {
         System.out.println("Connection open. Status: " + handshakeData.getHttpStatus());
         Utils.setTimeout(() -> {
             JSONObject msg = new JSONObject();
-            msg.put("#", dup.track(Dup.random(3)));
+            msg
+                    .put("#", dup.track(Dup.random()))
+                    .put("get", new JSONObject()
+                            .put("#", "FDSA")
+                            .put(".", "species"));
+            this.send(msg.toString());
+        }, 2000);
+
+        Utils.setTimeout(() -> {
+            JSONObject msg = new JSONObject();
+            msg.put("#", dup.track(Dup.random()));
             msg.put("put", new JSONObject()
                     .put("ASDF", Utils.newNode("ASDF", new JSONObject()
                             .put("name", "Mark Nadal")
                             .put("boss", new JSONObject().put("#", "FDSA"))).toJSONObject())
                     .put("FDSA", Utils.newNode("FDSA", new JSONObject().put("name", "Fluffy").put("species", "a kitty").put("slave", new JSONObject().put("#", "ASDF"))).toJSONObject()));
             this.send(msg.toString());
-        }, 1000);
+        }, (int) (1000 * Math.random()));
         Utils.setTimeout(() -> {
             JSONObject msg = new JSONObject();
-            msg.put("#", dup.track(Dup.random(3)));
+            msg.put("#", dup.track(Dup.random()));
             msg.put("put", new JSONObject()
                     .put("ASDF", Utils.newNode("ASDF", new JSONObject()
                             .put("name", "Mark")).toJSONObject())
                     .put("FDSA", Utils.newNode("FDSA", new JSONObject().put("species", "felis silvestris").put("color", "ginger")).toJSONObject()));
             this.send(msg.toString());
-        }, 2000);
+        }, (int) (1000 * Math.random()));
     }
 
     @Override
     public void onMessage(String message) {
         JSONObject msg = new JSONObject(message);
-        if(dup.check(msg.getString("#"))) { return; }
+        if(dup.check(msg.getString("#"))){ return; }
         dup.track(msg.getString("#"));
-        System.out.println(msg.toString());
+        if(msg.opt("put") != null) {
+            HAM.mix(new Graph(msg.getJSONObject("put")), graph);
+        }
+        if(msg.opt("get") != null) {
+            Graph getResults = Utils.getRequest(msg.getJSONObject("get"), graph);
+            JSONObject ack = new JSONObject()
+                    .put("#", dup.track(Dup.random()))
+                    .put("@", msg.getString("#"))
+                    .put("put", getResults.toJSONObject());
+            this.send(ack.toString());
+        }
+        System.out.println("---------------");
+        System.out.println(msg.toString(2));
         this.send(message);
     }
 

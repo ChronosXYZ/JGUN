@@ -25,4 +25,29 @@ public class Utils {
         data.put("_", new JSONObject().put("#", soul).put(">", states));
         return new Node(data);
     }
+
+    public static Graph getRequest(JSONObject lex, Graph graph) {
+        String soul = lex.getString("#");
+        String key = lex.optString(".", null);
+        Node node = graph.getNode(soul);
+        Object tmp;
+        if(node == null) {
+            return new Graph();
+        }
+        if(key != null) {
+            tmp = node.values.opt(key);
+            if(tmp == null) {
+                return new Graph();
+            }
+            Node node1 = new Node(node.toJSONObject());
+            node = Utils.newNode(node.soul, new JSONObject());
+            node.setMetadata(node1.getMetadata());
+            node.values.put(key, tmp);
+            JSONObject tmpStates = node1.states;
+            node.states.put(key, tmpStates.get(key));
+        }
+        Graph ack = new Graph();
+        ack.addNode(soul, node);
+        return ack;
+    }
 }

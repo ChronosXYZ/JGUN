@@ -35,6 +35,8 @@ public class Graph {
         return nodes.entrySet();
     }
 
+    public Collection<Node> nodes() { return nodes.values(); }
+
     @Override
     public String toString() {
         JSONObject jsonObject = new JSONObject();
@@ -58,5 +60,9 @@ public class Graph {
             jsonObject.put(entry.getKey(), entry.getValue().toJSONObject());
         }
         return jsonObject;
+    }
+
+    public boolean isEmpty() {
+        return nodes.isEmpty();
     }
 }

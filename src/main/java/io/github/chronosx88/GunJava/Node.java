@@ -4,8 +4,8 @@ import org.json.JSONObject;
 
 public class Node implements Comparable<Node> {
     public JSONObject values; // Data
-    public final JSONObject states; // Metadata for diff
-    public final String soul; // i.e. ID of node
+    public JSONObject states; // Metadata for diff
+    public String soul; // i.e. ID of node
 
     /**
      * Create a Node from a JSON object.
@@ -13,7 +13,7 @@ public class Node implements Comparable<Node> {
      * @param rawData JSON object, which contains the data
      */
     public Node(JSONObject rawData) {
-        this.values = rawData;
+        this.values = new JSONObject(rawData.toString());
         this.states = values.getJSONObject("_").getJSONObject(">");
         this.soul = values.getJSONObject("_").getString("#");
         values.remove("_");
@@ -60,5 +60,16 @@ public class Node implements Comparable<Node> {
         JSONObject jsonObject = new JSONObject(values.toString());
         jsonObject.put("_", new JSONObject().put("#", soul).put(">", states));
         return jsonObject;
+    }
+
+    public JSONObject getMetadata() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("_", new JSONObject().put("#", soul).put(">", states));
+        return jsonObject;
+    }
+
+    public void setMetadata(JSONObject metadata) {
+        soul = metadata.getJSONObject("_").getString("#");
+        states = metadata.getJSONObject("_").getJSONObject(">");
     }
 }

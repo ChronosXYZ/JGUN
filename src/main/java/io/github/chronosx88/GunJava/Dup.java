@@ -2,10 +2,11 @@ package io.github.chronosx88.GunJava;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Dup {
-    private static char[] randomPack = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+    private static char[] randomSeed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
     private static Random random = new Random(System.currentTimeMillis());
     private Map<String, Long> s = new ConcurrentHashMap<>();
     private DupOpt opt = new DupOpt();
@@ -40,11 +41,7 @@ public class Dup {
         }
     }
 
-    public static String random(int len) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < len; i++) {
-            sb.append(randomPack[random.nextInt(randomPack.length)]);
-        }
-        return sb.toString();
+    public static String random() {
+        return UUID.randomUUID().toString();
     }
 }
