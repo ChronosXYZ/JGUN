@@ -1,20 +1,21 @@
-package io.github.chronosx88.GunJava;
+package io.github.chronosx88.JGUN.nodes;
 
-import io.github.chronosx88.GunJava.storageBackends.MemoryBackend;
+import io.github.chronosx88.JGUN.Dup;
+import io.github.chronosx88.JGUN.HAM;
+import io.github.chronosx88.JGUN.Utils;
+import io.github.chronosx88.JGUN.storageBackends.InMemoryGraph;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.json.JSONObject;
 
 import java.net.InetSocketAddress;
-import java.util.Timer;
 
-public class Server extends WebSocketServer {
-    private Timer timer = new Timer(true);
+public class GunSuperPeer extends WebSocketServer implements Peer {
     private Dup dup = new Dup();
-    private MemoryBackend graph = new MemoryBackend();
+    private InMemoryGraph graph = new InMemoryGraph();
 
-    public Server(int port) {
+    public GunSuperPeer(int port) {
         super(new InetSocketAddress(port));
         setReuseAddr(true);
     }
@@ -35,16 +36,22 @@ public class Server extends WebSocketServer {
         if(dup.check(msg.getString("#"))) { return; }
         dup.track(msg.getString("#"));
         if(msg.opt("put") != null) {
-            HAM.mix(new MemoryBackend(msg.getJSONObject("put")), graph);
+            HAM.mix(new InMemoryGraph(msg.getJSONObject("put")), graph);
         }
         if(msg.opt("get") != null) {
-            MemoryBackend result = Utils.getRequest(msg.optJSONObject("get"), graph);
+            InMemoryGraph result = Utils.getRequest(msg.optJSONObject("get"), graph);
+            JSONObject ack = new JSONObject();
             if(!result.isEmpty()) {
-                JSONObject ack = new JSONObject();
                 emit(ack
                         .put("#", dup.track(Dup.random()))
                         .put("@", msg.getString("#"))
                         .put("put", result.toJSONObject())
+                        .toString());
+            } else {
+                emit(ack
+                        .put("#", dup.track(Dup.random()))
+                        .put("@", msg.getString("#"))
+                        .put("ok", false)
                         .toString());
             }
         }
@@ -53,12 +60,13 @@ public class Server extends WebSocketServer {
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
-        //
+        System.out.println("# Exception occured on connection: " + conn.getRemoteSocketAddress());
+        ex.printStackTrace();
     }
 
     @Override
     public void onStart() {
-        System.out.println("Server started on port: " + getPort());
+        System.out.println("GunSuperPeer started on port: " + getPort());
     }
 
     public void emit(String data) {
