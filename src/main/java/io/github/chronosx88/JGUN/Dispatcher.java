@@ -46,13 +46,6 @@ public class Dispatcher {
         }).start();
     }
 
-    public void sendGetRequest(String key) {
-        new Thread(() -> {
-            JSONObject jsonGet = Utils.formatGetRequest(key, null);
-            peer.emit(jsonGet.toString());
-        }).start();
-    }
-
     public void sendGetRequest(String key, String field) {
         new Thread(() -> {
             JSONObject jsonGet = Utils.formatGetRequest(key, field);

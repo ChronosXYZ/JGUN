@@ -28,14 +28,17 @@ public class FutureGet extends BaseFuture<FutureGet> {
 
     public FutureGet done(JSONObject data) {
         synchronized (lock) {
-            if(!data.isEmpty()) {
-                this.getStatus = GetStatus.OK;
-                this.type = FutureType.OK;
+            if(data != null) {
+                if (!data.isEmpty()) {
+                    this.getStatus = GetStatus.OK;
+                    this.type = FutureType.OK;
+                }
             } else {
                 this.getStatus = GetStatus.NOT_FOUND;
                 this.type = FutureType.FAILED;
                 this.reason = "Not found";
             }
+
             this.data = data;
             if (!completedAndNotify()) {
                 return this;
