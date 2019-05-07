@@ -7,35 +7,36 @@ import org.json.JSONObject;
 import java.util.Map;
 
 public class HAM {
-    private static long defer = Long.MAX_VALUE;
-
     static class HAMResult {
-        public boolean defer = false;
-        public boolean historical = false;
-        public boolean converge = false;
-        public boolean incoming = false;
-        public boolean current = false;
+        public boolean defer = false; // Defer means that the current state is greater than our computer time, and should only be processed when our computer time reaches this state
+        public boolean historical = false; // Historical means the old state. This is usually ignored.
+        public boolean converge = false; // Everything is fine, you can do merge
+        public boolean incoming = false; // Leave incoming value
+        public boolean current = false; // Leave current value
         public boolean state = false;
-        public String err = null;
     }
 
     public static HAMResult ham(long machineState, long incomingState, long currentState, Object incomingValue, Object currentValue) {
         HAMResult result = new HAMResult();
 
         if(machineState < incomingState) {
+            // the incoming value is outside the boundary of the machine's state, it must be reprocessed in another state.
             result.defer = true;
             return result;
         }
-        if(incomingState < currentState){
+        if(incomingState < currentState) {
+            // the incoming value is within the boundary of the machine's state, but not within the range.
             result.historical = true;
             return result;
         }
         if(currentState < incomingState) {
+            // the incoming value is within both the boundary and the range of the machine's state.
             result.converge = true;
             result.incoming = true;
             return result;
         }
         if(incomingState == currentState) {
+            // if incoming state and current state is the same
             if(incomingValue.equals(currentValue)) {
                 result.state = true;
                 return result;
@@ -51,8 +52,7 @@ public class HAM {
                 return result;
             }
         }
-        result.err = "Invalid CRDT Data: "+ incomingValue +" to "+ currentValue +" at "+ incomingState +" to "+ currentState +"!";
-        return result;
+        throw new IllegalArgumentException("Invalid CRDT Data: "+ incomingValue +" to "+ currentValue +" at "+ incomingState +" to "+ currentState +"!");
     }
 
     public static InMemoryGraph mix(InMemoryGraph change, StorageBackend data) {
