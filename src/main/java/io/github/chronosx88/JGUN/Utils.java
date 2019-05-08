@@ -5,6 +5,9 @@ import io.github.chronosx88.JGUN.storageBackends.InMemoryGraph;
 import io.github.chronosx88.JGUN.storageBackends.StorageBackend;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentSkipListSet;
+
 public class Utils {
     public static Thread setTimeout(Runnable runnable, int delay){
         Thread thread = new Thread(() -> {
@@ -59,21 +62,26 @@ public class Utils {
         for (String objectKey : data.keySet()) {
             JSONObject object = data.getJSONObject(objectKey);
             Node node = Utils.newNode(objectKey, object);
-            prepareNodeForPut(node, result);
+            ArrayList<String> path = new ArrayList<>();
+            path.add(objectKey);
+            prepareNodeForPut(node, result, path);
         }
         return result;
     }
 
-    private static void prepareNodeForPut(Node node, InMemoryGraph result) {
-        for (String key : node.values.keySet()) {
+    private static void prepareNodeForPut(Node node, InMemoryGraph result, ArrayList<String> path) {
+        for(String key : new ConcurrentSkipListSet<>(node.values.keySet())) {
             Object value = node.values.get(key);
             if(value instanceof JSONObject) {
-                String soul = Dup.random();
+                path.add(key);
+                String soul = "";
+                soul = String.join("/", path);
                 Node tmpNode = Utils.newNode(soul, (JSONObject) value);
                 node.values.remove(key);
                 node.values.put(key, new JSONObject().put("#", soul));
-                prepareNodeForPut(tmpNode, result);
+                prepareNodeForPut(tmpNode, result, new ArrayList<>(path));
                 result.addNode(soul, tmpNode);
+                path.remove(key);
             }
         }
         result.addNode(node.soul, node);
@@ -97,4 +105,17 @@ public class Utils {
         jsonObject.put("put", data);
         return jsonObject;
     }
+
+    /**
+     * This check current nodes for existing IDs in our storage, and if there are existing IDs, it means to replace them.
+     * Prevents trailing nodes in storage
+     * @param incomingGraph The graph that came to us over the wire.
+     * @param graphStorage Graph storage in which the incoming graph will be saved
+     * @return Prepared graph for saving
+     */
+    /*public static InMemoryGraph checkIncomingNodesForID(InMemoryGraph incomingGraph, StorageBackend graphStorage) {
+        for (Node node : incomingGraph.nodes()) {
+            for(node)
+        }
+    }*/
 }
