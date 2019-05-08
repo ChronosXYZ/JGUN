@@ -1,7 +1,7 @@
 package io.github.chronosx88.JGUN;
 
 import io.github.chronosx88.JGUN.futures.FutureGet;
-import io.github.chronosx88.JGUN.futures.builders.PutBuilder;
+import io.github.chronosx88.JGUN.futures.FuturePut;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -68,7 +68,10 @@ public class PathRef {
         return futureGet;
     }
 
-    public PutBuilder put(JSONObject data) {
-        return new PutBuilder(dispatcher, data, path);
+    public FuturePut put(JSONObject data) {
+        FuturePut futurePut = new FuturePut(Dup.random());
+        dispatcher.addPendingFuture(futurePut);
+        dispatcher.sendPutRequest(data);
+        return futurePut;
     }
 }
