@@ -1,9 +1,10 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
     id 'java'
 }
 
 group 'io.github.chronosx88'
-version '0.1.0'
+version '0.2.0'
 
 sourceCompatibility = 1.8
 
