@@ -1,4 +1,4 @@
-package io.github.chronosx88.JGUN.entrypoints;
+package io.github.chronosx88.JGUN.examples;
 
 import io.github.chronosx88.JGUN.nodes.GunSuperPeer;
 

@@ -24,43 +24,52 @@ public class PathRef {
 
     public FutureGet getData() {
         FutureGet futureGet = new FutureGet(Dup.random());
-        Iterator<String> iterator = path.iterator();
         new Thread(() -> {
+            Iterator<String> iterator = path.iterator();
+            String rootSoul = iterator.next();
+            String field = iterator.hasNext() ? iterator.next() : null;
+
+            iterator = path.iterator();
+            iterator.next();
+
             CompletableFuture<JSONObject> future = CompletableFuture.supplyAsync(() -> {
-                String rootSoul = iterator.next();
-                String field = iterator.hasNext() ? iterator.next() : null;
                 FutureGet futureGetRootSoul = new FutureGet(Dup.random());
                 dispatcher.addPendingFuture(futureGetRootSoul);
-                dispatcher.sendGetRequest(rootSoul, field);
-                futureGetRootSoul.awaitUninterruptibly();
-                if(futureGetRootSoul.isSuccess() && futureGetRootSoul.getData() != null) {
-                    return futureGetRootSoul.getData();
-                } else {
-                    return null;
+                dispatcher.sendGetRequest(futureGetRootSoul.getFutureID(), rootSoul, field);
+                JSONObject result = futureGetRootSoul.await();
+                if(result != null && result.isEmpty()) {
+                    result = null;
                 }
+                return result == null ? null : result.getJSONObject(rootSoul);
             });
-            while(iterator.hasNext()) {
+            do {
+                String soul = iterator.hasNext() ? iterator.next() : null;
+                String nextField = iterator.hasNext() ? iterator.next() : null;
                 future = future.thenApply(jsonObject -> {
-                    String soul = iterator.next();
-                    String field = iterator.hasNext() ? iterator.next() : null;
                     if(jsonObject != null) {
-                        String nodeRef = jsonObject.getJSONObject(soul).getString("#");
-                        FutureGet get = new FutureGet(Dup.random());
-                        dispatcher.addPendingFuture(get);
-                        dispatcher.sendGetRequest(nodeRef, field);
-                        get.awaitUninterruptibly();
-                        if(get.isSuccess() && get.getData() != null) {
-                            return get.getData();
+                        if(soul != null) {
+                            if(jsonObject.get(soul) instanceof JSONObject) {
+                                String nodeRef = jsonObject.getJSONObject(soul).getString("#");
+                                FutureGet get = new FutureGet(Dup.random());
+                                dispatcher.addPendingFuture(get);
+                                dispatcher.sendGetRequest(get.getFutureID(), nodeRef, nextField);
+                                JSONObject result = get.await();
+                                if(result != null && result.isEmpty()) {
+                                    result = null;
+                                }
+                                return result == null ? null : result.getJSONObject(nodeRef);
+                            }
                         } else {
-                            return null;
+                            return jsonObject;
                         }
                     }
                     return null;
                 });
-            }
+            } while(iterator.hasNext());
+
             try {
                 JSONObject data = future.get();
-                futureGet.done(data);
+                futureGet.complete(data);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
@@ -71,7 +80,19 @@ public class PathRef {
     public FuturePut put(JSONObject data) {
         FuturePut futurePut = new FuturePut(Dup.random());
         dispatcher.addPendingFuture(futurePut);
-        dispatcher.sendPutRequest(data);
+        JSONObject temp = new JSONObject();
+        JSONObject temp1 = temp;
+        for (int i = 0; i < path.size(); i++) {
+            if(i != path.size() - 1) {
+                JSONObject object = new JSONObject();
+                temp1.put(path.get(i), object);
+                temp1 = object;
+            } else {
+                temp1.put(path.get(i), data == null ? JSONObject.NULL : data);
+            }
+
+        }
+        dispatcher.sendPutRequest(futurePut.getFutureID(), temp);
         return futurePut;
     }
 }

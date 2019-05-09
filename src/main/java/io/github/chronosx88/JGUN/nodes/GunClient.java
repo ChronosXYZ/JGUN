@@ -12,12 +12,12 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class GunPeer extends WebSocketClient implements Peer {
+public class GunClient extends WebSocketClient implements Peer {
     private Dup dup = new Dup();
     private final StorageBackend storage;
     private final Dispatcher dispatcher;
 
-    public GunPeer(InetAddress address, int port, StorageBackend storage) throws URISyntaxException {
+    public GunClient(InetAddress address, int port, StorageBackend storage) throws URISyntaxException {
         super(new URI("ws://" + address.getHostAddress() + ":" + port));
         this.storage = storage;
         this.dispatcher = new Dispatcher(storage, this, dup);
@@ -47,14 +47,12 @@ public class GunPeer extends WebSocketClient implements Peer {
         ex.printStackTrace();
     }
 
+    public Dispatcher getDispatcher() {
+        return dispatcher;
+    }
+
     @Override
     public void emit(String data) {
         this.send(data);
-    }
-
-    public PathRef get(String key) {
-        PathRef pathRef = new PathRef(dispatcher);
-        pathRef.get(key);
-        return pathRef;
     }
 }

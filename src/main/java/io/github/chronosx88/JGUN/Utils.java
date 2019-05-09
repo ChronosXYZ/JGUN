@@ -59,11 +59,13 @@ public class Utils {
     public static InMemoryGraph prepareDataForPut(JSONObject data) {
         InMemoryGraph result = new InMemoryGraph();
         for (String objectKey : data.keySet()) {
-            JSONObject object = data.getJSONObject(objectKey);
-            Node node = Utils.newNode(objectKey, object);
-            ArrayList<String> path = new ArrayList<>();
-            path.add(objectKey);
-            prepareNodeForPut(node, result, path);
+            Object object = data.get(objectKey);
+            if(object instanceof JSONObject) {
+                Node node = Utils.newNode(objectKey, (JSONObject) object);
+                ArrayList<String> path = new ArrayList<>();
+                path.add(objectKey);
+                prepareNodeForPut(node, result, path);
+            }
         }
         return result;
     }
@@ -86,21 +88,21 @@ public class Utils {
         result.addNode(node.soul, node);
     }
 
-    public static JSONObject formatGetRequest(String key, String field) {
+    public static JSONObject formatGetRequest(String messageID, String key, String field) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("#", Dup.random());
+        jsonObject.put("#", messageID);
         JSONObject getParameters = new JSONObject();
         getParameters.put("#", key);
         if(field != null) {
             getParameters.put(".", field);
         }
-        jsonObject.put("get", getParameters);
+        jsonObject.put("await", getParameters);
         return jsonObject;
     }
 
-    public static JSONObject formatPutRequest(JSONObject data) {
+    public static JSONObject formatPutRequest(String messageID, JSONObject data) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("#", Dup.random());
+        jsonObject.put("#", messageID);
         jsonObject.put("put", data);
         return jsonObject;
     }
