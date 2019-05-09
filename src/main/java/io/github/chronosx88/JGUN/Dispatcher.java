@@ -15,7 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Dispatcher {
     private final Map<String, BaseCompletableFuture<?>> pendingFutures = new ConcurrentHashMap<>();
-    private final Map<String, NodeChangeListener> changeListeners = new HashMap<>();
+    private final Map<String, NodeChangeListener> changeListeners = new ConcurrentHashMap<>();
+    private final Map<String, NodeChangeListener.ForEach> forEachListeners = new ConcurrentHashMap<>();
     private final Peer peer;
     private final StorageBackend graphStorage;
     private final Dup dup;
@@ -61,6 +62,11 @@ public class Dispatcher {
                 if(changeListeners.containsKey(entry.getKey())) {
                     changeListeners.get(entry.getKey()).onChange(entry.getValue().toUserJSONObject());
                 }
+                if(forEachListeners.containsKey(entry.getKey())) {
+                    for(Map.Entry<String, Object> jsonEntry : entry.getValue().values.toMap().entrySet()) {
+                        forEachListeners.get(entry.getKey()).onChange(jsonEntry.getKey(), jsonEntry.getValue());
+                    }
+                }
             }
         }
         return new JSONObject() // Acknowledgment
@@ -104,5 +110,9 @@ public class Dispatcher {
 
     public void addChangeListener(String soul, NodeChangeListener listener) {
         changeListeners.put(soul, listener);
+    }
+
+    public void addForEachChangeListener(String soul, NodeChangeListener.ForEach listener) {
+        forEachListeners.put(soul, listener);
     }
 }

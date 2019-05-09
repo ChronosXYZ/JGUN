@@ -99,4 +99,8 @@ public class PathRef {
     public void on(NodeChangeListener changeListener) {
         dispatcher.addChangeListener(String.join("/", path), changeListener);
     }
+
+    public void map(NodeChangeListener.ForEach forEachListener) {
+        dispatcher.addForEachChangeListener(String.join("/", path), forEachListener);
+    }
 }

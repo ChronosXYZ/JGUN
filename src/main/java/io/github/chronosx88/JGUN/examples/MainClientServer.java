@@ -34,11 +34,14 @@ public class MainClientServer {
                 }
 
             });
-            FuturePut futurePut = gun.get("random").get("dVFtzE9CL").put(new JSONObject().put("hello", "world"));
-            boolean success = futurePut.await();
-            System.out.println("[FuturePut] Success: " + success);
-            FuturePut futurePut1 = gun.get("random").get("dVFtzE9CL").put(new JSONObject().put("hello", "123"));
-            System.out.println("[FuturePut1] Putting an item again: " + futurePut1.await());
+            gun.get("random").get("dVFtzE9CL").map(((key, value) -> {
+                System.out.println("[Map] New change in \"random/dVFtzE9CL\"! " + key + " : " + value.toString());
+            }));
+            gun.get("random").map(((key, value) -> {
+                System.out.println("[Map] New change in \"random\"! " + key + " : " + value);
+            }));
+            System.out.println("[FuturePut] Success: " + gun.get("random").get("dVFtzE9CL").put(new JSONObject().put("hello", "world")).await());
+            System.out.println("[FuturePut] Putting an item again: " + gun.get("random").get("dVFtzE9CL").put(new JSONObject().put("hello", "123")).await());
             System.out.println("Deleting an item random/dVFtzE9CL");
             gun.get("random").get("dVFtzE9CL").put(null).await();
             gun.get("random").put(new JSONObject().put("hello", "world")).await();
