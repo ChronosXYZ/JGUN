@@ -3,7 +3,9 @@ package io.github.chronosx88.JGUN;
 import io.github.chronosx88.JGUN.storageBackends.InMemoryGraph;
 import org.json.JSONObject;
 
-public class Node implements Comparable<Node> {
+import java.io.Serializable;
+
+public class Node implements Comparable<Node>, Serializable {
     public JSONObject values; // Data
     public JSONObject states; // Metadata for diff
     public String soul; // i.e. ID of node
