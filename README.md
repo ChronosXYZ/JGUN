@@ -11,7 +11,9 @@
 ## Table of Contents
 
 - [Intro](#intro)
+- [Requirements](#requirements)
 - [Building](#building)
+- [Examples](#examples)
 - [Features](#features)
 - [Useful links](#useful-links)
 - [License](#license)
@@ -20,7 +22,7 @@
 ## Intro
 A realtime, decentralized, offline-first, mutable graph protocol to sync the Internet.
 
-### Requirements
+## Requirements
 * JRE/JDK >= 1.8.0
 
 ## Building
@@ -38,6 +40,9 @@ $ cd JGUN
 (Also exists precompiled JARs - see Releases (publishing to Maven coming soon...))
 
 <sub>[⇧ back to top](#contents)</sub>
+
+## Examples
+Examples are located [there](src/main/java/io/github/chronosx88/JGUN/examples)
 
 ## Features
 - Put to database
