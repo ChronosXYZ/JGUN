@@ -9,11 +9,13 @@ import io.github.chronosx88.JGUN.storageBackends.StorageBackend;
 import org.java_websocket.client.WebSocketClient;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Dispatcher {
     private final Map<String, BaseCompletableFuture<?>> pendingFutures = new ConcurrentHashMap<>();
+    private final Map<String, NodeChangeListener> changeListeners = new HashMap<>();
     private final Peer peer;
     private final StorageBackend graphStorage;
     private final Dup dup;
@@ -40,6 +42,7 @@ public class Dispatcher {
         if(message.has("@")) {
             handleIncomingAck(message);
         }
+        peer.emit(message.toString());
     }
 
     private JSONObject handleGet(JSONObject getData) {
@@ -52,7 +55,14 @@ public class Dispatcher {
     }
 
     private JSONObject handlePut(JSONObject message) {
-        HAM.mix(new InMemoryGraph(message.getJSONObject("put")), graphStorage);
+        InMemoryGraph diff = HAM.mix(new InMemoryGraph(message.getJSONObject("put")), graphStorage);
+        if(diff != null) {
+            for(Map.Entry<String, Node> entry : diff.entries()) {
+                if(changeListeners.containsKey(entry.getKey())) {
+                    changeListeners.get(entry.getKey()).onChange(entry.getValue().toUserJSONObject());
+                }
+            }
+        }
         return new JSONObject() // Acknowledgment
                 .put( "#", dup.track(Dup.random()) )
                 .put( "@", message.getString("#") )
@@ -64,7 +74,7 @@ public class Dispatcher {
             if(pendingFutures.containsKey(ack.getString("@"))) {
                 BaseCompletableFuture<?> future = pendingFutures.get(ack.getString("@"));
                 if(future instanceof FutureGet) {
-                    ((FutureGet) future).complete(ack.getJSONObject("put"));
+                    ((FutureGet) future).complete(new InMemoryGraph(ack.getJSONObject("put")).toUserJSONObject());
                 }
             }
         }
@@ -90,5 +100,9 @@ public class Dispatcher {
             JSONObject jsonGet = Utils.formatGetRequest(messageID, key, field);
             peer.emit(jsonGet.toString());
         }).start();
+    }
+
+    public void addChangeListener(String soul, NodeChangeListener listener) {
+        changeListeners.put(soul, listener);
     }
 }

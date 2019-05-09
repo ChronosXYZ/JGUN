@@ -73,4 +73,8 @@ public class Node implements Comparable<Node> {
         soul = metadata.getJSONObject("_").getString("#");
         states = metadata.getJSONObject("_").getJSONObject(">");
     }
+
+    public JSONObject toUserJSONObject() {
+        return values;
+    }
 }

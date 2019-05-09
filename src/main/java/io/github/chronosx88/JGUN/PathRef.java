@@ -95,4 +95,8 @@ public class PathRef {
         dispatcher.sendPutRequest(futurePut.getFutureID(), temp);
         return futurePut;
     }
+
+    public void on(NodeChangeListener changeListener) {
+        dispatcher.addChangeListener(String.join("/", path), changeListener);
+    }
 }

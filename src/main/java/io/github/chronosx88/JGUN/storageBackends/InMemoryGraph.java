@@ -63,6 +63,14 @@ public class InMemoryGraph implements StorageBackend {
         return jsonObject;
     }
 
+    public JSONObject toUserJSONObject() {
+        JSONObject jsonObject = new JSONObject();
+        for(Map.Entry<String, Node> entry : nodes.entrySet()) {
+            jsonObject.put(entry.getKey(), entry.getValue().toUserJSONObject());
+        }
+        return jsonObject;
+    }
+
     public boolean isEmpty() {
         return nodes.isEmpty();
     }
