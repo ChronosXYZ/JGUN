@@ -21,7 +21,7 @@ public class InMemoryGraph implements StorageBackend {
     }
 
     public Node getNode(String soul) {
-        return nodes.getOrDefault(soul, null);
+        return nodes.get(soul);
     }
 
     public void addNode(String soul, Node incomingNode) {
