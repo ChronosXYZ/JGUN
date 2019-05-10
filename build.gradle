@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'io.github.chronosx88'
-version '0.2.4'
+version '0.2.5'
 
 sourceCompatibility = 1.8
 
@@ -19,3 +19,21 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+
