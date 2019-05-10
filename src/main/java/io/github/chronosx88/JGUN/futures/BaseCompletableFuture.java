@@ -1,7 +1,9 @@
 package io.github.chronosx88.JGUN.futures;
 
-import java.util.concurrent.CompletableFuture;
+import java9.util.concurrent.CompletableFuture;
+
 import java.util.concurrent.ExecutionException;
+
 
 public class BaseCompletableFuture<T> extends CompletableFuture<T> {
     private final String futureID;
