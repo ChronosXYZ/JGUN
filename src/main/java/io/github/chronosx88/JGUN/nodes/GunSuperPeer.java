@@ -18,7 +18,7 @@ public class GunSuperPeer extends WebSocketServer implements Peer {
     public GunSuperPeer(int port, StorageBackend storageBackend) {
         super(new InetSocketAddress(port));
         setReuseAddr(true);
-        dispatcher = new Dispatcher(graph, this, dup);
+        dispatcher = new Dispatcher(storageBackend, this, dup);
         this.graph = storageBackend;
     }
 
