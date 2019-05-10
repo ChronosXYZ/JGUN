@@ -12,7 +12,7 @@ import java.net.UnknownHostException;
 
 public class MainClientServer {
     public static void main(String[] args) {
-        GunSuperPeer gunSuperNode = new GunSuperPeer(21334);
+        GunSuperPeer gunSuperNode = new GunSuperPeer(21334, new InMemoryGraph());
         gunSuperNode.start();
         new Thread(() -> {
             Gun gun = null;
