@@ -36,7 +36,7 @@ public class Dispatcher {
             JSONObject ack = handlePut(message);
             peer.emit(ack.toString());
         }
-        if(message.has("await")) {
+        if(message.has("get")) {
             JSONObject ack = handleGet(message);
             peer.emit(ack.toString());
         }
@@ -47,7 +47,7 @@ public class Dispatcher {
     }
 
     private JSONObject handleGet(JSONObject getData) {
-        InMemoryGraph getResults = Utils.getRequest(getData.getJSONObject("await"), graphStorage);
+        InMemoryGraph getResults = Utils.getRequest(getData.getJSONObject("get"), graphStorage);
         return new JSONObject() // Acknowledgment
                 .put( "#", dup.track(Dup.random()) )
                 .put( "@", getData.getString("#") )
@@ -56,23 +56,11 @@ public class Dispatcher {
     }
 
     private JSONObject handlePut(JSONObject message) {
-        InMemoryGraph diff = HAM.mix(new InMemoryGraph(message.getJSONObject("put")), graphStorage);
-        if(diff != null) {
-            for(Map.Entry<String, Node> entry : diff.entries()) {
-                if(changeListeners.containsKey(entry.getKey())) {
-                    changeListeners.get(entry.getKey()).onChange(entry.getValue().toUserJSONObject());
-                }
-                if(forEachListeners.containsKey(entry.getKey())) {
-                    for(Map.Entry<String, Object> jsonEntry : entry.getValue().values.toMap().entrySet()) {
-                        forEachListeners.get(entry.getKey()).onChange(jsonEntry.getKey(), jsonEntry.getValue());
-                    }
-                }
-            }
-        }
+        boolean success = HAM.mix(new InMemoryGraph(message.getJSONObject("put")), graphStorage, changeListeners, forEachListeners);
         return new JSONObject() // Acknowledgment
                 .put( "#", dup.track(Dup.random()) )
                 .put( "@", message.getString("#") )
-                .put( "ok", true);
+                .put( "ok", success);
     }
 
     private void handleIncomingAck(JSONObject ack) {

@@ -97,7 +97,7 @@ public class Utils {
         if(field != null) {
             getParameters.put(".", field);
         }
-        jsonObject.put("await", getParameters);
+        jsonObject.put("get", getParameters);
         return jsonObject;
     }
 
