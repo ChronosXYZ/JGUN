@@ -48,8 +48,9 @@ public class PathRef {
                 future = future.thenApply(jsonObject -> {
                     if(jsonObject != null) {
                         if(soul != null) {
-                            if(jsonObject.get(soul) instanceof JSONObject) {
-                                String nodeRef = jsonObject.getJSONObject(soul).getString("#");
+                            JSONObject tmp = null;
+                            if(jsonObject.keySet().contains("#")) {
+                                String nodeRef = jsonObject.getString("#");
                                 FutureGet get = new FutureGet(Dup.random());
                                 dispatcher.addPendingFuture(get);
                                 dispatcher.sendGetRequest(get.getFutureID(), nodeRef, nextField);
@@ -57,7 +58,48 @@ public class PathRef {
                                 if(result != null && result.isEmpty()) {
                                     result = null;
                                 }
-                                return result == null ? null : result.getJSONObject(nodeRef);
+                                result = result == null ? null : result.getJSONObject(nodeRef);
+                                if(result != null) {
+                                    result = nextField == null ? result : result.getJSONObject(nextField);
+                                }
+                                tmp = result;
+                            }
+                            if(tmp != null) {
+                                if(tmp.opt(soul) instanceof JSONObject) {
+                                    String nodeRef = tmp.getJSONObject(soul).getString("#");
+                                    FutureGet get = new FutureGet(Dup.random());
+                                    dispatcher.addPendingFuture(get);
+                                    dispatcher.sendGetRequest(get.getFutureID(), nodeRef, nextField);
+                                    JSONObject result = get.await();
+                                    if(result != null && result.isEmpty()) {
+                                        result = null;
+                                    }
+                                    result = result == null ? null : result.getJSONObject(nodeRef);
+                                    if(result != null) {
+                                        result = nextField == null ? result : result.getJSONObject(nextField);
+                                    }
+                                    return result;
+                                } else {
+                                    return tmp;
+                                }
+                            } else {
+                                if(jsonObject.opt(soul) instanceof JSONObject) {
+                                    String nodeRef = jsonObject.getJSONObject(soul).getString("#");
+                                    FutureGet get = new FutureGet(Dup.random());
+                                    dispatcher.addPendingFuture(get);
+                                    dispatcher.sendGetRequest(get.getFutureID(), nodeRef, nextField);
+                                    JSONObject result = get.await();
+                                    if(result != null && result.isEmpty()) {
+                                        result = null;
+                                    }
+                                    result = result == null ? null : result.getJSONObject(nodeRef);
+                                    if(result != null) {
+                                        result = nextField == null ? result : result.getJSONObject(nextField);
+                                    }
+                                    return result;
+                                } else {
+                                    return jsonObject;
+                                }
                             }
                         } else {
                             return jsonObject;
