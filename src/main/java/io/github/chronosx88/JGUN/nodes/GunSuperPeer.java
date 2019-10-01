@@ -29,7 +29,9 @@ public class GunSuperPeer extends WebSocketServer implements Peer {
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        System.out.println("Peer " + conn.getRemoteSocketAddress().toString() + " closed the connection for reason (code): " + reason + " (" + code + ")");
+        if(conn != null) {
+            System.out.println("Peer " + conn.getRemoteSocketAddress().toString() + " closed the connection for reason (code): " + reason + " (" + code + ")");
+        }
     }
 
     @Override
