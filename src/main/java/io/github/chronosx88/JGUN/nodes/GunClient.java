@@ -2,8 +2,8 @@ package io.github.chronosx88.JGUN.nodes;
 
 import io.github.chronosx88.JGUN.Dispatcher;
 import io.github.chronosx88.JGUN.Dup;
-import io.github.chronosx88.JGUN.PathRef;
 import io.github.chronosx88.JGUN.storageBackends.StorageBackend;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONObject;
@@ -14,12 +14,10 @@ import java.net.URISyntaxException;
 
 public class GunClient extends WebSocketClient implements Peer {
     private Dup dup = new Dup();
-    private final StorageBackend storage;
     private final Dispatcher dispatcher;
 
     public GunClient(InetAddress address, int port, StorageBackend storage) throws URISyntaxException {
         super(new URI("ws://" + address.getHostAddress() + ":" + port));
-        this.storage = storage;
         this.dispatcher = new Dispatcher(storage, this, dup);
     }
 

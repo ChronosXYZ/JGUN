@@ -3,6 +3,7 @@ package io.github.chronosx88.JGUN.nodes;
 import io.github.chronosx88.JGUN.Dispatcher;
 import io.github.chronosx88.JGUN.Dup;
 import io.github.chronosx88.JGUN.storageBackends.StorageBackend;
+
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -12,14 +13,12 @@ import java.net.InetSocketAddress;
 
 public class GunSuperPeer extends WebSocketServer implements Peer {
     private Dup dup = new Dup();
-    private StorageBackend graph;
     private Dispatcher dispatcher;
 
     public GunSuperPeer(int port, StorageBackend storageBackend) {
         super(new InetSocketAddress(port));
         setReuseAddr(true);
         dispatcher = new Dispatcher(storageBackend, this, dup);
-        this.graph = storageBackend;
     }
 
     @Override

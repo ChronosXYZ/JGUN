@@ -1,13 +1,11 @@
 package io.github.chronosx88.JGUN;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Dup {
     private static char[] randomSeed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
-    private static Random random = new Random(System.currentTimeMillis());
     private Map<String, Long> s = new ConcurrentHashMap<>();
     private DupOpt opt = new DupOpt();
     private Thread to = null;
