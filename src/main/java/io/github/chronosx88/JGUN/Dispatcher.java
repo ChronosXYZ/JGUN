@@ -12,6 +12,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class Dispatcher {
     private final Map<String, BaseCompletableFuture<?>> pendingFutures = new ConcurrentHashMap<>();
@@ -20,6 +22,7 @@ public class Dispatcher {
     private final Peer peer;
     private final StorageBackend graphStorage;
     private final Dup dup;
+    private final Executor executorService = Executors.newCachedThreadPool();
 
     public Dispatcher(StorageBackend graphStorage, Peer peer, Dup dup) {
         this.graphStorage = graphStorage;
@@ -83,17 +86,17 @@ public class Dispatcher {
     }
 
     public void sendPutRequest(String messageID, JSONObject data) {
-        new Thread(() -> {
+        executorService.execute(() -> {
             InMemoryGraph graph = Utils.prepareDataForPut(data);
             peer.emit(Utils.formatPutRequest(messageID, graph.toJSONObject()).toString());
-        }).start();
+        });
     }
 
     public void sendGetRequest(String messageID, String key, String field) {
-        new Thread(() -> {
+        executorService.execute(() -> {
             JSONObject jsonGet = Utils.formatGetRequest(messageID, key, field);
             peer.emit(jsonGet.toString());
-        }).start();
+        });
     }
 
     public void addChangeListener(String soul, NodeChangeListener listener) {

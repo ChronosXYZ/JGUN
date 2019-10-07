@@ -9,12 +9,14 @@ import org.json.JSONObject;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MainClientServer {
     public static void main(String[] args) {
         GunSuperPeer gunSuperNode = new GunSuperPeer(21334, new InMemoryGraph());
         gunSuperNode.start();
-        new Thread(() -> {
+        Runnable task = () -> {
             Gun gun = null;
             try {
                 gun = new Gun(Inet4Address.getByAddress(new byte[]{127, 0, 0, 1}), 21334, new InMemoryGraph());
@@ -45,7 +47,9 @@ public class MainClientServer {
             System.out.println("Deleting an item random/dVFtzE9CL");
             gun.get("random").get("dVFtzE9CL").put(null).await();
             gun.get("random").put(new JSONObject().put("hello", "world")).await();
-        }).start();
+        };
 
+        Executor executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(task);
     }
 }
