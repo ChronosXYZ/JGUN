@@ -1,5 +1,6 @@
 <p align="center">
 	<h1 align="center">JGUN</h1>
+	<h2 align="center">CURRENTLY ONLY FOR NON-PRODUCTION USE</h2>
 	<p align="center">
   This is a distributed database for Java, port of <a href="https://gun.eco">GUN</a> (which originally written in JavaScript).
   </p>
