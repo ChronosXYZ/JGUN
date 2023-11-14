@@ -7,36 +7,34 @@ import io.github.chronosx88.JGUN.models.MemoryGraph;
 import io.github.chronosx88.JGUN.models.Node;
 import io.github.chronosx88.JGUN.models.NodeMetadata;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public abstract class Storage {
-    abstract Node getNode(String id);
+    public abstract Node getNode(String id);
 
-    abstract void updateNode(Node node);
+    protected abstract void updateNode(Node node);
 
-    abstract void addNode(String id, Node node);
+    public abstract void addNode(String id, Node node);
 
-    abstract boolean hasNode(String id);
+    public abstract boolean hasNode(String id);
 
-    abstract Set<Map.Entry<String, Node>> entries();
+    public abstract Set<Map.Entry<String, Node>> entries();
 
-    abstract Collection<Node> nodes();
+    public  abstract Collection<Node> nodes();
 
-    abstract boolean isEmpty();
+    public abstract boolean isEmpty();
 
-    abstract void putDeferredNode(DeferredNode node);
+    protected abstract void putDeferredNode(DeferredNode node);
+
+    private final Map<String, List<NodeChangeListener>> changeListeners = new HashMap<>();
+    private final Map<String, List<NodeChangeListener.Map>> mapChangeListeners = new HashMap<>();
 
     /**
      * Merge graph update (usually received from the network)
      *
-     * @param update             Graph update
-     * @param changeListeners    User callbacks which fired when Node has changed (.on() API)
-     * @param mapChangeListeners User callbacks which fired when Node has changed (.map() API)
+     * @param update Graph update
      */
-    public void mergeUpdate(MemoryGraph update, Map<String, NodeChangeListener> changeListeners, Map<String, NodeChangeListener.Map> mapChangeListeners) {
+    public void mergeUpdate(MemoryGraph update) {
         long machine = System.currentTimeMillis();
         MemoryGraph diff = new MemoryGraph();
         for (Map.Entry<String, Node> entry : update.getNodes().entrySet()) {
@@ -56,11 +54,11 @@ public abstract class Storage {
                 }
 
                 if (changeListeners.containsKey(diffEntry.getKey())) {
-                    changeListeners.get(diffEntry.getKey()).onChange(diffEntry.getValue());
+                    changeListeners.get(diffEntry.getKey()).forEach((e) -> e.onChange(diffEntry.getValue()));
                 }
                 if (mapChangeListeners.containsKey(diffEntry.getKey())) {
                     for (Map.Entry<String, Object> nodeEntry : changedNode.getValues().entrySet()) {
-                        mapChangeListeners.get(nodeEntry.getKey()).onChange(nodeEntry.getKey(), nodeEntry.getValue());
+                        mapChangeListeners.get(nodeEntry.getKey()).forEach((e) -> e.onChange(nodeEntry.getKey(), nodeEntry.getValue()));
                     }
                 }
             }
@@ -112,5 +110,23 @@ public abstract class Storage {
         }
 
         return changedNode;
+    }
+
+    public void addChangeListener(String nodeID, NodeChangeListener listener) {
+        this.changeListeners.putIfAbsent(nodeID, new ArrayList<>());
+        this.changeListeners.get(nodeID).add(listener);
+    }
+
+    public void clearChangeListeners(String nodeID) {
+        this.changeListeners.remove(nodeID);
+    }
+
+    public void addMapChangeListener(String nodeID, NodeChangeListener.Map listener) {
+        this.mapChangeListeners.putIfAbsent(nodeID, new ArrayList<>());
+        this.mapChangeListeners.get(nodeID).add(listener);
+    }
+
+    public void clearMapChangeListeners(String nodeID) {
+        this.mapChangeListeners.remove(nodeID);
     }
 }

@@ -45,7 +45,7 @@ public class MemoryStorage extends Storage {
     }
 
     @Override
-    void updateNode(Node node) {
+    protected void updateNode(Node node) {
         Node currentNode = nodes.get(node.getMetadata().getNodeID());
         currentNode.values.putAll(node.values);
         currentNode.getMetadata().getStates().putAll(node.getMetadata().getStates());
@@ -72,7 +72,7 @@ public class MemoryStorage extends Storage {
     }
 
     @Override
-    void putDeferredNode(DeferredNode node) {
+    protected void putDeferredNode(DeferredNode node) {
         deferredNodes.put(node.getMetadata().getNodeID(), node);
     }
 }

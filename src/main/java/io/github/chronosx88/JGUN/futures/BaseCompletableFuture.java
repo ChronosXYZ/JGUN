@@ -2,7 +2,7 @@ package io.github.chronosx88.JGUN.futures;
 
 import java.util.concurrent.ExecutionException;
 
-import java9.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletableFuture;
 import lombok.Getter;
 
 

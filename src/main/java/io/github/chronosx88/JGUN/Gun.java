@@ -1,5 +1,6 @@
 package io.github.chronosx88.JGUN;
 
+import io.github.chronosx88.JGUN.models.MemoryGraph;
 import io.github.chronosx88.JGUN.nodes.GunClient;
 import io.github.chronosx88.JGUN.storage.Storage;
 
@@ -10,10 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Gun {
     private GunClient gunClient;
-    private final Map<String, NodeChangeListener> changeListeners = new ConcurrentHashMap<>();
-    private final Map<String, NodeChangeListener.Map> mapChangeListeners = new ConcurrentHashMap<>();
+    private final Storage storage;
 
     public Gun(InetAddress address, int port, Storage storage) {
+        this.storage = storage;
         try {
             this.gunClient = new GunClient(address, port, storage);
             this.gunClient.connectBlocking();
@@ -29,10 +30,18 @@ public class Gun {
     }
 
     protected void addChangeListener(String nodeID, NodeChangeListener listener) {
-        changeListeners.put(nodeID, listener);
+        storage.addChangeListener(nodeID, listener);
     }
 
     protected void addMapChangeListener(String nodeID, NodeChangeListener.Map listener) {
-        mapChangeListeners.put(nodeID, listener);
+        storage.addMapChangeListener(nodeID, listener);
+    }
+
+    protected void sendPutRequest(MemoryGraph data) {
+        // TODO
+    }
+
+    protected void sendGetRequest(String key, String field) {
+        // TODO
     }
 }

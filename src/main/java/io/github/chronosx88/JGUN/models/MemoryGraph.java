@@ -11,8 +11,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Data
+@Builder
+@Jacksonized
 public class MemoryGraph {
     @JsonIgnore
+    @Builder.Default
     public final Map<String, Node> nodes = new LinkedHashMap<>();
 
     @JsonAnyGetter

@@ -2,6 +2,7 @@ package io.github.chronosx88.JGUN;
 
 import io.github.chronosx88.JGUN.futures.FutureGet;
 import io.github.chronosx88.JGUN.futures.FuturePut;
+import io.github.chronosx88.JGUN.nodes.GunClient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,10 +10,10 @@ import java.util.HashMap;
 public class PathReference {
     private final ArrayList<String> path = new ArrayList<>();
 
-    private Gun database;
+    private Gun gun;
 
-    public PathReference(Gun db) {
-        this.database = db;
+    public PathReference(Gun gun) {
+        this.gun = gun;
     }
 
     public PathReference get(String key) {
@@ -31,10 +32,10 @@ public class PathReference {
     }
 
     public void on(NodeChangeListener changeListener) {
-        database.addChangeListener(String.join("/", path), changeListener);
+        gun.addChangeListener(String.join("/", path), changeListener);
     }
 
     public void map(NodeChangeListener.Map forEachListener) {
-        database.addMapChangeListener(String.join("/", path), forEachListener);
+        gun.addMapChangeListener(String.join("/", path), forEachListener);
     }
 }

@@ -5,11 +5,12 @@ import io.github.chronosx88.JGUN.models.MemoryGraph;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 @Data
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-@Builder
 @Jacksonized
 public class GetAck extends BaseAck {
     @JsonProperty("put")

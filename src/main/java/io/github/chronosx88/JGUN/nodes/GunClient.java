@@ -26,7 +26,7 @@ public class GunClient extends WebSocketClient implements Peer {
 
     @Override
     public void onMessage(String message) {
-        // TODO
+        handler.handleIncomingMessage(message);
     }
 
     @Override

@@ -5,12 +5,15 @@ import io.github.chronosx88.JGUN.models.BaseMessage;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 @Data
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public abstract class BaseAck extends BaseMessage {
+@Jacksonized
+public class BaseAck extends BaseMessage {
     @JsonProperty("@")
     private String replyTo;
-    private String ok;
+    private boolean ok;
 }
