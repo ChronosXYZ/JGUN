@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Gun {
     private GunClient gunClient;
     private final Map<String, NodeChangeListener> changeListeners = new ConcurrentHashMap<>();
-    private final Map<String, NodeChangeListener.ForEach> forEachListeners = new ConcurrentHashMap<>();
+    private final Map<String, NodeChangeListener.Map> mapChangeListeners = new ConcurrentHashMap<>();
 
     public Gun(InetAddress address, int port, Storage storage) {
         try {
@@ -32,7 +32,7 @@ public class Gun {
         changeListeners.put(nodeID, listener);
     }
 
-    protected void addForEachChangeListener(String nodeID, NodeChangeListener.ForEach listener) {
-        forEachListeners.put(nodeID, listener);
+    protected void addMapChangeListener(String nodeID, NodeChangeListener.Map listener) {
+        mapChangeListeners.put(nodeID, listener);
     }
 }

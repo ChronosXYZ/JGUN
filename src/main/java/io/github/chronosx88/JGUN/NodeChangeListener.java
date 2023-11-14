@@ -6,7 +6,7 @@ import io.github.chronosx88.JGUN.models.Node;
 public interface NodeChangeListener {
     void onChange(Node node);
 
-    interface ForEach {
+    interface Map {
         void onChange(String key, Object value);
     }
 }

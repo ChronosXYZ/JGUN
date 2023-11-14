@@ -1,18 +1,43 @@
 package io.github.chronosx88.JGUN.storage;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Expiry;
+import io.github.chronosx88.JGUN.models.DeferredNode;
 import io.github.chronosx88.JGUN.models.Node;
+import org.checkerframework.checker.index.qual.NonNegative;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class MemoryStorage extends Storage {
-    private final Map<String, Node> nodes;
+    private final Map<String, Node> nodes = new ConcurrentHashMap<>();
+    private final Cache<String, DeferredNode> deferredNodes;
 
-    public MemoryStorage()     {
-        nodes = new LinkedHashMap<>();
+    public MemoryStorage() {
+        deferredNodes = Caffeine.newBuilder().expireAfter(new Expiry<String, DeferredNode>() {
+                    @Override
+                    public long expireAfterCreate(String key, DeferredNode value, long currentTime) {
+                        return value.getDelay(TimeUnit.NANOSECONDS);
+                    }
+
+                    @Override
+                    public long expireAfterUpdate(String key, DeferredNode value, long currentTime, @NonNegative long currentDuration) {
+                        return Long.MAX_VALUE;
+                    }
+
+                    @Override
+                    public long expireAfterRead(String key, DeferredNode value, long currentTime, @NonNegative long currentDuration) {
+                        return Long.MAX_VALUE;
+                    }
+                })
+                .evictionListener((key, value, cause) -> {
+                    assert value != null;
+                    this.mergeNode(value, System.currentTimeMillis());
+                }).build();
     }
 
     public Node getNode(String id) {
@@ -21,8 +46,9 @@ public class MemoryStorage extends Storage {
 
     @Override
     void updateNode(Node node) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        Node currentNode = nodes.get(node.getMetadata().getNodeID());
+        currentNode.values.putAll(node.values);
+        currentNode.getMetadata().getStates().putAll(node.getMetadata().getStates());
     }
 
     public void addNode(String id, Node incomingNode) {
@@ -43,5 +69,10 @@ public class MemoryStorage extends Storage {
 
     public boolean isEmpty() {
         return nodes.isEmpty();
+    }
+
+    @Override
+    void putDeferredNode(DeferredNode node) {
+        deferredNodes.put(node.getMetadata().getNodeID(), node);
     }
 }

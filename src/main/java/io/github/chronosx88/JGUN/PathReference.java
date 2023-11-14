@@ -34,7 +34,7 @@ public class PathReference {
         database.addChangeListener(String.join("/", path), changeListener);
     }
 
-    public void map(NodeChangeListener.ForEach forEachListener) {
-        database.addForEachChangeListener(String.join("/", path), forEachListener);
+    public void map(NodeChangeListener.Map forEachListener) {
+        database.addMapChangeListener(String.join("/", path), forEachListener);
     }
 }
