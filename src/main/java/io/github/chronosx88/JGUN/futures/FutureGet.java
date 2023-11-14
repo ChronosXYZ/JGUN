@@ -1,8 +1,8 @@
 package io.github.chronosx88.JGUN.futures;
 
-import org.json.JSONObject;
+import io.github.chronosx88.JGUN.models.MemoryGraph;
 
-public class FutureGet extends BaseCompletableFuture<JSONObject> {
+public class FutureGet extends BaseCompletableFuture<MemoryGraph> {
     public FutureGet(String id) {
         super(id);
     }

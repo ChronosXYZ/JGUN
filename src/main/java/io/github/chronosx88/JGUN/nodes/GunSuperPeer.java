@@ -1,24 +1,22 @@
 package io.github.chronosx88.JGUN.nodes;
 
-import io.github.chronosx88.JGUN.Dispatcher;
 import io.github.chronosx88.JGUN.Dup;
-import io.github.chronosx88.JGUN.storageBackends.StorageBackend;
-
+import io.github.chronosx88.JGUN.NetworkHandler;
+import io.github.chronosx88.JGUN.storage.Storage;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
-import org.json.JSONObject;
 
 import java.net.InetSocketAddress;
 
 public class GunSuperPeer extends WebSocketServer implements Peer {
-    private Dup dup = new Dup();
-    private Dispatcher dispatcher;
+    private Dup dup = new Dup(1000*9);
+    private NetworkHandler handler;
 
-    public GunSuperPeer(int port, StorageBackend storageBackend) {
+    public GunSuperPeer(int port, Storage storage) {
         super(new InetSocketAddress(port));
         setReuseAddr(true);
-        dispatcher = new Dispatcher(storageBackend, this, dup);
+        handler = new NetworkHandler(storage, this, dup);
     }
 
     @Override
@@ -35,10 +33,7 @@ public class GunSuperPeer extends WebSocketServer implements Peer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        JSONObject jsonMsg = new JSONObject(message);
-        if(dup.check(jsonMsg.getString("#"))){ return; }
-        dup.track(jsonMsg.getString("#"));
-        dispatcher.handleIncomingMessage(jsonMsg);
+        // TODO
     }
 
     @Override

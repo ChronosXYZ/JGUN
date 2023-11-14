@@ -1,28 +1,38 @@
 package io.github.chronosx88.JGUN;
 
 import io.github.chronosx88.JGUN.nodes.GunClient;
-import io.github.chronosx88.JGUN.storageBackends.StorageBackend;
+import io.github.chronosx88.JGUN.storage.Storage;
 
 import java.net.InetAddress;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Gun {
-    private Dispatcher dispatcher;
     private GunClient gunClient;
+    private final Map<String, NodeChangeListener> changeListeners = new ConcurrentHashMap<>();
+    private final Map<String, NodeChangeListener.ForEach> forEachListeners = new ConcurrentHashMap<>();
 
-    public Gun(InetAddress address, int port, StorageBackend storage) {
+    public Gun(InetAddress address, int port, Storage storage) {
         try {
             this.gunClient = new GunClient(address, port, storage);
-            this.dispatcher = gunClient.getDispatcher();
             this.gunClient.connectBlocking();
         } catch (URISyntaxException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public PathRef get(String key) {
-        PathRef pathRef = new PathRef(dispatcher);
+    public PathReference get(String key) {
+        PathReference pathRef = new PathReference(this);
         pathRef.get(key);
         return pathRef;
+    }
+
+    protected void addChangeListener(String nodeID, NodeChangeListener listener) {
+        changeListeners.put(nodeID, listener);
+    }
+
+    protected void addForEachChangeListener(String nodeID, NodeChangeListener.ForEach listener) {
+        forEachListeners.put(nodeID, listener);
     }
 }

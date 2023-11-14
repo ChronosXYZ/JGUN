@@ -24,7 +24,7 @@
 A realtime, decentralized, offline-first, mutable graph protocol to sync the Internet.
 
 ## Requirements
-* JRE/JDK >= 1.8.0
+* JRE/JDK >= 11
 
 ## Building
 1. Clone repo:
@@ -34,11 +34,8 @@ $ cd JGUN
 ```
 2. Compile it:
 ```bash
-./gradlew shadowJar
+./gradlew build
 ```
-3. Compiled JAR located in `./build/libs/`
-
-(Also exists precompiled JARs - see Releases (publishing to Maven coming soon...))
 
 <sub>[⇧ back to top](#contents)</sub>
 

@@ -1,24 +1,22 @@
 package io.github.chronosx88.JGUN.nodes;
 
-import io.github.chronosx88.JGUN.Dispatcher;
 import io.github.chronosx88.JGUN.Dup;
-import io.github.chronosx88.JGUN.storageBackends.StorageBackend;
-
+import io.github.chronosx88.JGUN.NetworkHandler;
+import io.github.chronosx88.JGUN.storage.Storage;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import org.json.JSONObject;
 
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 public class GunClient extends WebSocketClient implements Peer {
-    private Dup dup = new Dup();
-    private final Dispatcher dispatcher;
+    private Dup dup = new Dup(1000*9);
+    private final NetworkHandler handler;
 
-    public GunClient(InetAddress address, int port, StorageBackend storage) throws URISyntaxException {
+    public GunClient(InetAddress address, int port, Storage storage) throws URISyntaxException {
         super(new URI("ws://" + address.getHostAddress() + ":" + port));
-        this.dispatcher = new Dispatcher(storage, this, dup);
+        this.handler = new NetworkHandler(storage, this, dup);
     }
 
     @Override
@@ -28,10 +26,7 @@ public class GunClient extends WebSocketClient implements Peer {
 
     @Override
     public void onMessage(String message) {
-        JSONObject jsonMsg = new JSONObject(message);
-        if(dup.check(jsonMsg.getString("#"))){ return; }
-        dup.track(jsonMsg.getString("#"));
-        dispatcher.handleIncomingMessage(jsonMsg);
+        // TODO
     }
 
     @Override
@@ -43,10 +38,6 @@ public class GunClient extends WebSocketClient implements Peer {
     public void onError(Exception ex) {
         System.out.println("Terrible fail: ");
         ex.printStackTrace();
-    }
-
-    public Dispatcher getDispatcher() {
-        return dispatcher;
     }
 
     @Override
