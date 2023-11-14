@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Data
@@ -14,7 +15,7 @@ import java.util.Map;
 public class NodeMetadata {
     @JsonProperty(">")
     @Builder.Default
-    private Map<String, Long> states = new HashMap<>(); // field -> state
+    private Map<String, Long> states = new LinkedHashMap<>(); // field -> state
 
     @JsonProperty("#")
     private String nodeID;

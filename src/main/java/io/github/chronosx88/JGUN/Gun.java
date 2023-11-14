@@ -1,25 +1,34 @@
 package io.github.chronosx88.JGUN;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import io.github.chronosx88.JGUN.futures.FuturePut;
 import io.github.chronosx88.JGUN.models.MemoryGraph;
+import io.github.chronosx88.JGUN.models.requests.PutRequest;
 import io.github.chronosx88.JGUN.nodes.GunClient;
 import io.github.chronosx88.JGUN.storage.Storage;
 
 import java.net.InetAddress;
 import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class Gun {
-    private GunClient gunClient;
+    private GunClient peer;
     private final Storage storage;
+    private final ObjectMapper objectMapper;
+    private final Executor executorService = Executors.newCachedThreadPool();
 
     public Gun(InetAddress address, int port, Storage storage) {
+        this.objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new Jdk8Module());
         this.storage = storage;
         try {
-            this.gunClient = new GunClient(address, port, storage);
-            this.gunClient.connectBlocking();
+            this.peer = new GunClient(address, port, storage);
+            this.peer.connectBlocking();
         } catch (URISyntaxException | InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -37,11 +46,27 @@ public class Gun {
         storage.addMapChangeListener(nodeID, listener);
     }
 
-    protected void sendPutRequest(MemoryGraph data) {
-        // TODO
+    protected FuturePut sendPutRequest(MemoryGraph data) {
+        String reqID = Dup.random();
+        executorService.execute(() -> {
+            storage.mergeUpdate(data);
+            var request = PutRequest.builder()
+                    .id(reqID)
+                    .graph(data)
+                    .build();
+            String encodedRequest;
+            try {
+                encodedRequest = this.objectMapper.writeValueAsString(request);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            peer.emit(encodedRequest);
+        });
+        return new FuturePut(reqID);
     }
 
     protected void sendGetRequest(String key, String field) {
         // TODO
+        throw new UnsupportedOperationException("TODO");
     }
 }

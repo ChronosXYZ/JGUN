@@ -7,11 +7,12 @@ import io.github.chronosx88.JGUN.models.Node;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 @Data
 @Jacksonized
-@Builder
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 public class PutRequest extends BaseMessage {
     @JsonProperty("put")

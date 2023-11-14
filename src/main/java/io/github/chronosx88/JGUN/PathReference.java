@@ -2,15 +2,15 @@ package io.github.chronosx88.JGUN;
 
 import io.github.chronosx88.JGUN.futures.FutureGet;
 import io.github.chronosx88.JGUN.futures.FuturePut;
-import io.github.chronosx88.JGUN.nodes.GunClient;
+import io.github.chronosx88.JGUN.models.MemoryGraph;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 public class PathReference {
-    private final ArrayList<String> path = new ArrayList<>();
+    private final List<String> path = new ArrayList<>();
 
-    private Gun gun;
+    private final Gun gun;
 
     public PathReference(Gun gun) {
         this.gun = gun;
@@ -21,14 +21,13 @@ public class PathReference {
         return this;
     }
 
-    public FutureGet getData() {
+    public FutureGet once() {
         // TODO
-        return null;
+        throw new UnsupportedOperationException("TODO");
     }
 
-    public FuturePut put(HashMap<String, Object> data) {
-        // TODO
-        return null;
+    public FuturePut put(MemoryGraph graph) {
+        return gun.sendPutRequest(graph);
     }
 
     public void on(NodeChangeListener changeListener) {

@@ -5,10 +5,11 @@ import io.github.chronosx88.JGUN.models.BaseMessage;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 @Data
-@Builder
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @Jacksonized
 public class GetRequest extends BaseMessage {

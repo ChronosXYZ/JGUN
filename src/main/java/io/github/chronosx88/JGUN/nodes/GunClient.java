@@ -2,6 +2,8 @@ package io.github.chronosx88.JGUN.nodes;
 
 import io.github.chronosx88.JGUN.Dup;
 import io.github.chronosx88.JGUN.NetworkHandler;
+import io.github.chronosx88.JGUN.futures.FutureGet;
+import io.github.chronosx88.JGUN.futures.FuturePut;
 import io.github.chronosx88.JGUN.storage.Storage;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -43,5 +45,20 @@ public class GunClient extends WebSocketClient implements Peer {
     @Override
     public void emit(String data) {
         this.send(data);
+    }
+
+    @Override
+    public void addPendingPutRequest(FuturePut futurePut) {
+        this.handler.addPendingPutRequest(futurePut);
+    }
+
+    @Override
+    public void addPendingGetRequest(FutureGet futureGet) {
+        this.handler.addPendingGetRequest(futureGet);
+    }
+
+    @Override
+    public void start() {
+        this.connect();
     }
 }

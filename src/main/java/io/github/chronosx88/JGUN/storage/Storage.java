@@ -36,7 +36,7 @@ public abstract class Storage {
      */
     public void mergeUpdate(MemoryGraph update) {
         long machine = System.currentTimeMillis();
-        MemoryGraph diff = new MemoryGraph();
+        MemoryGraph diff = MemoryGraph.builder().build();
         for (Map.Entry<String, Node> entry : update.getNodes().entrySet()) {
             Node node = entry.getValue();
             Node diffNode = this.mergeNode(node, machine);

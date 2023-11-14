@@ -2,6 +2,7 @@ package io.github.chronosx88.JGUN;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.github.chronosx88.JGUN.futures.FutureGet;
 import io.github.chronosx88.JGUN.futures.FuturePut;
 import io.github.chronosx88.JGUN.futures.GetResult;
@@ -31,12 +32,15 @@ public class NetworkHandler {
     private final Storage storage;
     private final Dup dup;
     private final Executor executorService = Executors.newCachedThreadPool();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     public NetworkHandler(Storage storage, Peer peer, Dup dup) {
         this.storage = storage;
         this.peer = peer;
         this.dup = dup;
+
+        this.objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new Jdk8Module());
     }
 
     public void addPendingGetRequest(FutureGet future) {
