@@ -1,22 +1,21 @@
-package io.github.chronosx88.JGUN;
+package io.github.chronosx88.JGUN.api.graph;
 
-import io.github.chronosx88.JGUN.models.MemoryGraph;
-import io.github.chronosx88.JGUN.models.Node;
-import io.github.chronosx88.JGUN.models.NodeLink;
-import io.github.chronosx88.JGUN.models.NodeMetadata;
+import io.github.chronosx88.JGUN.models.graph.*;
+import io.github.chronosx88.JGUN.models.graph.values.*;
+import io.github.chronosx88.JGUN.models.graph.NodeValue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
-public class GraphNodeBuilder {
+public class NodeBuilder {
     private final MemoryGraph graph;
     private final Node rootNode;
     protected static final String ROOT_NODE = "__ROOT__";
 
-    public GraphNodeBuilder() {
-        this.graph = MemoryGraph.builder().build();
+    public NodeBuilder() {
+        this.graph = new MemoryGraph();
         this.rootNode = Node.builder()
                 .metadata(NodeMetadata.builder()
                         .nodeID(null)
@@ -25,48 +24,47 @@ public class GraphNodeBuilder {
         graph.nodes.put(ROOT_NODE, this.rootNode);
     }
 
-    private GraphNodeBuilder addScalar(String name, Object value) {
+    private NodeBuilder addScalar(String name, NodeValue value) {
         rootNode.values.put(name, value);
         rootNode.getMetadata().getStates().put(name, System.currentTimeMillis());
         return this;
     }
 
-    public GraphNodeBuilder add(String name, String value) {
-        return addScalar(name, value);
+    public NodeBuilder add(String name, String value) {
+        return addScalar(name, new StringValue(value));
     }
 
-    public GraphNodeBuilder add(String name, BigInteger value) {
-        return addScalar(name, value);
+    public NodeBuilder add(String name, BigInteger value) {
+        return addScalar(name, new IntValue(value));
     }
 
-    public GraphNodeBuilder add(String name, BigDecimal value) {
-        return addScalar(name, value);
+    public NodeBuilder add(String name, BigDecimal value) {
+        return addScalar(name, new DecimalValue(value));
     }
 
-    public GraphNodeBuilder add(String name, int value) {
-        return addScalar(name, value);
+    public NodeBuilder add(String name, int value) {
+        return addScalar(name, new IntValue(value));
     }
 
-    public GraphNodeBuilder add(String name, long value) {
-        return addScalar(name, value);
+    public NodeBuilder add(String name, long value) {
+        return addScalar(name, new IntValue(value));
     }
 
-    public GraphNodeBuilder add(String name, double value) {
-        return addScalar(name, value);
+    public NodeBuilder add(String name, double value) {
+        return addScalar(name, new DecimalValue(value));
     }
 
-    public GraphNodeBuilder add(String name, boolean value) {
-        return addScalar(name, value);
-
+    public NodeBuilder add(String name, boolean value) {
+        return addScalar(name, new BooleanValue(value));
     }
 
-    public GraphNodeBuilder addNull(String name) {
+    public NodeBuilder addNull(String name) {
         return addScalar(name, null);
     }
 
-    public GraphNodeBuilder add(String name, GraphNodeBuilder builder) {
+    public NodeBuilder add(String name, NodeBuilder builder) {
         String newNodeID = UUID.randomUUID().toString();
-        rootNode.values.put(name, NodeLink.builder()
+        rootNode.values.put(name, NodeLinkValue.builder()
                 .link(newNodeID)
                 .build());
         MemoryGraph innerGraph = builder.build();
@@ -77,17 +75,16 @@ public class GraphNodeBuilder {
         return this;
     }
 
-    public GraphNodeBuilder add(String name, NodeArrayBuilder builder) {
+    public NodeBuilder add(String name, ArrayBuilder builder) {
         MemoryGraph innerGraph = builder.build();
-        //noinspection unchecked
-        var innerArray = (List<Object>) innerGraph.nodes.get(ROOT_NODE).values.get(NodeArrayBuilder.ARRAY_FIELD);
+        var innerArray = (NodeValue) innerGraph.nodes.get(ROOT_NODE).values.get(ArrayBuilder.ARRAY_FIELD);
         rootNode.values.put(name, innerArray);
         rootNode.getMetadata().getStates().put(name, innerGraph
                 .nodes
                 .get(ROOT_NODE)
                 .getMetadata()
                 .getStates()
-                .get(NodeArrayBuilder.ARRAY_FIELD));
+                .get(ArrayBuilder.ARRAY_FIELD));
         innerGraph.nodes.remove(ROOT_NODE);
         graph.nodes.putAll(innerGraph.nodes);
         return this;

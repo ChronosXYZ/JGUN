@@ -1,6 +1,6 @@
-package io.github.chronosx88.JGUN;
+package io.github.chronosx88.JGUN.api;
 
-import io.github.chronosx88.JGUN.models.Node;
+import io.github.chronosx88.JGUN.models.graph.Node;
 
 @FunctionalInterface
 public interface NodeChangeListener {

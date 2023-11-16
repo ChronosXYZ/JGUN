@@ -1,4 +1,4 @@
-package io.github.chronosx88.JGUN.models;
+package io.github.chronosx88.JGUN.models.graph;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

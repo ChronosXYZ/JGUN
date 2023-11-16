@@ -1,4 +1,4 @@
-package io.github.chronosx88.JGUN.models;
+package io.github.chronosx88.JGUN.models.graph;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -11,12 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Data
-@Builder
-@Jacksonized
 public class MemoryGraph {
     @JsonIgnore
-    @Builder.Default
-    public final Map<String, Node> nodes = new LinkedHashMap<>();
+    public Map<String, Node> nodes = new LinkedHashMap<>();
 
     @JsonAnyGetter
     public Map<String, Node> nodes() {

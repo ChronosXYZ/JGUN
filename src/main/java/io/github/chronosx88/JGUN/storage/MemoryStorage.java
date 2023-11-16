@@ -3,8 +3,8 @@ package io.github.chronosx88.JGUN.storage;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
-import io.github.chronosx88.JGUN.models.DeferredNode;
-import io.github.chronosx88.JGUN.models.Node;
+import io.github.chronosx88.JGUN.models.graph.DeferredNode;
+import io.github.chronosx88.JGUN.models.graph.Node;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import java.util.Collection;

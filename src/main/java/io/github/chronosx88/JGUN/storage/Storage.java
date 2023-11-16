@@ -1,11 +1,8 @@
 package io.github.chronosx88.JGUN.storage;
 
-import io.github.chronosx88.JGUN.HAM;
-import io.github.chronosx88.JGUN.NodeChangeListener;
-import io.github.chronosx88.JGUN.models.DeferredNode;
-import io.github.chronosx88.JGUN.models.MemoryGraph;
-import io.github.chronosx88.JGUN.models.Node;
-import io.github.chronosx88.JGUN.models.NodeMetadata;
+import io.github.chronosx88.JGUN.api.NodeChangeListener;
+import io.github.chronosx88.JGUN.models.graph.*;
+import io.github.chronosx88.JGUN.models.graph.NodeValue;
 
 import java.util.*;
 
@@ -36,7 +33,7 @@ public abstract class Storage {
      */
     public void mergeUpdate(MemoryGraph update) {
         long machine = System.currentTimeMillis();
-        MemoryGraph diff = MemoryGraph.builder().build();
+        MemoryGraph diff = new MemoryGraph();
         for (Map.Entry<String, Node> entry : update.getNodes().entrySet()) {
             Node node = entry.getValue();
             Node diffNode = this.mergeNode(node, machine);
@@ -57,7 +54,7 @@ public abstract class Storage {
                     changeListeners.get(diffEntry.getKey()).forEach((e) -> e.onChange(diffEntry.getValue()));
                 }
                 if (mapChangeListeners.containsKey(diffEntry.getKey())) {
-                    for (Map.Entry<String, Object> nodeEntry : changedNode.getValues().entrySet()) {
+                    for (Map.Entry<String, NodeValue> nodeEntry : changedNode.getValues().entrySet()) {
                         mapChangeListeners.get(nodeEntry.getKey()).forEach((e) -> e.onChange(nodeEntry.getKey(), nodeEntry.getValue()));
                     }
                 }
@@ -75,7 +72,7 @@ public abstract class Storage {
     public Node mergeNode(Node incomingNode, long machineState) {
         Node changedNode = null;
         for (String key : incomingNode.getValues().keySet()) {
-            Object value = incomingNode.getValues().get(key);
+            NodeValue value = incomingNode.getValues().get(key);
             long state = incomingNode.getMetadata().getStates().get(key);
             long previousState = -1;
             Object currentValue = null;

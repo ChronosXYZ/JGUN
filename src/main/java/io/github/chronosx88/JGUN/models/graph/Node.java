@@ -1,34 +1,38 @@
-package io.github.chronosx88.JGUN.models;
+package io.github.chronosx88.JGUN.models.graph;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Data
-@Jacksonized
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Node {
     @JsonProperty("_")
-    private NodeMetadata metadata;
+    @Builder.Default
+    private final NodeMetadata metadata = new NodeMetadata(new HashMap<>(), null);
 
     @JsonIgnore
     @Builder.Default
-    public Map<String, Object> values = new LinkedHashMap<>(); // Data
+    public final Map<String, NodeValue> values = new LinkedHashMap<>(); // Data
 
     @JsonAnyGetter
-    public Map<String, Object> getValues() {
+    public Map<String, NodeValue> getValues() {
         return values;
     }
 
     @JsonAnySetter
-    public void allSetter(String key, String value) {
+    public void allSetter(String key, NodeValue value) {
         values.put(key, value);
     }
 }

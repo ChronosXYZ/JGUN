@@ -1,6 +1,4 @@
-package io.github.chronosx88.JGUN.models;
-
-import lombok.Getter;
+package io.github.chronosx88.JGUN.models.graph;
 
 import java.util.Map;
 import java.util.concurrent.Delayed;
@@ -9,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 public class DeferredNode extends Node implements Delayed {
     private long deferredUntil = 0;
 
-    DeferredNode(NodeMetadata metadata, Map<String, Object> values) {
+    DeferredNode(NodeMetadata metadata, Map<String, NodeValue> values) {
         super(metadata, values);
     }
 

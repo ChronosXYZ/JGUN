@@ -1,8 +1,7 @@
 package io.github.chronosx88.JGUN.models.acks;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.chronosx88.JGUN.models.MemoryGraph;
-import lombok.Builder;
+import io.github.chronosx88.JGUN.models.graph.MemoryGraph;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
