@@ -10,7 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class GetRequestParams {
     @JsonProperty("#")
-    private String nodeID;
+    private String nodeId;
 
     @JsonProperty(".")
     private String field;

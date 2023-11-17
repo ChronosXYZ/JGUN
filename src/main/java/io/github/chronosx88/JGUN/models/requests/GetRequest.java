@@ -12,7 +12,7 @@ import lombok.extern.jackson.Jacksonized;
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @Jacksonized
-public class GetRequest extends BaseMessage {
+public class GetRequest extends BaseMessage implements Request {
     @JsonProperty("get")
     private GetRequestParams params;
 }

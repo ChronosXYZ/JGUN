@@ -1,7 +1,7 @@
-package io.github.chronosx88.JGUN.nodes;
+package io.github.chronosx88.JGUN.network;
 
-import io.github.chronosx88.JGUN.Dup;
-import io.github.chronosx88.JGUN.NetworkHandler;
+import io.github.chronosx88.JGUN.api.FutureGet;
+import io.github.chronosx88.JGUN.api.FuturePut;
 import io.github.chronosx88.JGUN.storage.Storage;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -9,13 +9,13 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.net.InetSocketAddress;
 
-public class GunSuperPeer extends WebSocketServer implements Peer {
-    private Dup dup = new Dup(1000*9);
-    private NetworkHandler handler;
+public class GatewayNetworkNode extends WebSocketServer implements Peer {
+    private final NetworkHandler handler;
 
-    public GunSuperPeer(int port, Storage storage) {
+    public GatewayNetworkNode(int port, Storage storage) {
         super(new InetSocketAddress(port));
         setReuseAddr(true);
+        Dup dup = new Dup(1000 * 9);
         handler = new NetworkHandler(storage, this, dup);
     }
 
@@ -33,13 +33,13 @@ public class GunSuperPeer extends WebSocketServer implements Peer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        // TODO
+        handler.handleIncomingMessage(message);
     }
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
         if(conn != null) {
-            System.out.println("# Exception occured on connection: " + conn.getRemoteSocketAddress());
+            System.out.println("# Exception occurred on connection: " + conn.getRemoteSocketAddress());
         }
         ex.printStackTrace();
     }
@@ -53,5 +53,20 @@ public class GunSuperPeer extends WebSocketServer implements Peer {
         for(WebSocket conn : this.getConnections()) {
             conn.send(data);
         }
+    }
+
+    @Override
+    public void addPendingPutRequest(FuturePut futurePut) {
+        throw new UnsupportedOperationException("TODO"); // TODO
+    }
+
+    @Override
+    public void addPendingGetRequest(FutureGet futureGet) {
+        throw new UnsupportedOperationException("TODO"); // TODO
+    }
+
+    @Override
+    public int getTimeout() {
+        return 60;
     }
 }

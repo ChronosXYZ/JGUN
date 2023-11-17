@@ -2,9 +2,7 @@ package io.github.chronosx88.JGUN.models.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.chronosx88.JGUN.models.BaseMessage;
-import io.github.chronosx88.JGUN.models.MemoryGraph;
-import io.github.chronosx88.JGUN.models.Node;
-import lombok.Builder;
+import io.github.chronosx88.JGUN.models.graph.MemoryGraph;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
@@ -14,7 +12,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class PutRequest extends BaseMessage {
+public class PutRequest extends BaseMessage implements Request {
     @JsonProperty("put")
     private MemoryGraph graph;
 }

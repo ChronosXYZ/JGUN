@@ -1,4 +1,4 @@
-package io.github.chronosx88.JGUN;
+package io.github.chronosx88.JGUN.network;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

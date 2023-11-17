@@ -1,4 +1,4 @@
-package io.github.chronosx88.JGUN.futures;
+package io.github.chronosx88.JGUN.api;
 
 import lombok.Getter;
 

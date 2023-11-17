@@ -12,7 +12,7 @@ import java.util.UUID;
 public class NodeBuilder {
     private final MemoryGraph graph;
     private final Node rootNode;
-    protected static final String ROOT_NODE = "__ROOT__";
+    public static final String ROOT_NODE = "__ROOT__";
 
     public NodeBuilder() {
         this.graph = new MemoryGraph();
@@ -67,6 +67,7 @@ public class NodeBuilder {
         rootNode.values.put(name, NodeLinkValue.builder()
                 .link(newNodeID)
                 .build());
+        rootNode.getMetadata().getStates().put(name, System.currentTimeMillis());
         MemoryGraph innerGraph = builder.build();
         innerGraph.nodes.get(ROOT_NODE).getMetadata().setNodeID(newNodeID);
         innerGraph.nodes.put(newNodeID, innerGraph.nodes.get(ROOT_NODE));

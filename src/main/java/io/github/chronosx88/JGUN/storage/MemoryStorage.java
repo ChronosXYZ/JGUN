@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
 import io.github.chronosx88.JGUN.models.graph.DeferredNode;
 import io.github.chronosx88.JGUN.models.graph.Node;
+import io.github.chronosx88.JGUN.models.graph.NodeValue;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import java.util.Collection;
@@ -40,8 +41,19 @@ public class MemoryStorage extends Storage {
                 }).build();
     }
 
-    public Node getNode(String id) {
-        return nodes.get(id);
+    public Node getNode(String id, String field) {
+        Node node = nodes.get(id);
+        if (node != null && field != null) {
+            NodeValue requestedField = node.getValues().get(field);
+            if (requestedField != null) {
+                Long requestedFieldState = node.getMetadata().getStates().get(field);
+                node.getValues().clear();
+                node.getMetadata().getStates().clear();
+                node.getValues().put(field, requestedField);
+                node.getMetadata().getStates().put(field, requestedFieldState);
+            }
+        }
+        return node;
     }
 
     @Override

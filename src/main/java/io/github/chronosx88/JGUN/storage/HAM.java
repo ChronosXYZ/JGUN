@@ -1,4 +1,6 @@
-package io.github.chronosx88.JGUN;
+package io.github.chronosx88.JGUN.storage;
+
+import io.github.chronosx88.JGUN.models.graph.NodeValue;
 
 public class HAM {
     public static class HAMResult {
@@ -8,7 +10,11 @@ public class HAM {
         public boolean current = false; // Leave current value
     }
 
-    public static HAMResult ham(long machineState, long incomingState, long currentState, Object incomingValue, Object currentValue) throws IllegalArgumentException {
+    public static HAMResult ham(long machineState,
+                                long incomingState,
+                                long currentState,
+                                NodeValue incomingValue,
+                                NodeValue currentValue) {
         HAMResult result = new HAMResult();
 
         if (machineState < incomingState) {

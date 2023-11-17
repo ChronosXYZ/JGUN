@@ -1,21 +1,21 @@
-package io.github.chronosx88.JGUN;
+package io.github.chronosx88.JGUN.network;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import io.github.chronosx88.JGUN.futures.FutureGet;
-import io.github.chronosx88.JGUN.futures.FuturePut;
-import io.github.chronosx88.JGUN.futures.GetResult;
-import io.github.chronosx88.JGUN.futures.Result;
+import io.github.chronosx88.JGUN.api.FutureGet;
+import io.github.chronosx88.JGUN.api.FuturePut;
+import io.github.chronosx88.JGUN.models.GetResult;
+import io.github.chronosx88.JGUN.models.Result;
 import io.github.chronosx88.JGUN.models.BaseMessage;
-import io.github.chronosx88.JGUN.models.MemoryGraph;
-import io.github.chronosx88.JGUN.models.Node;
-import io.github.chronosx88.JGUN.models.NodeMetadata;
-import io.github.chronosx88.JGUN.models.acks.BaseAck;
+import io.github.chronosx88.JGUN.models.graph.MemoryGraph;
+import io.github.chronosx88.JGUN.models.graph.Node;
+import io.github.chronosx88.JGUN.models.graph.NodeMetadata;
+import io.github.chronosx88.JGUN.models.acks.Ack;
 import io.github.chronosx88.JGUN.models.acks.GetAck;
+import io.github.chronosx88.JGUN.models.graph.NodeValue;
 import io.github.chronosx88.JGUN.models.requests.GetRequest;
 import io.github.chronosx88.JGUN.models.requests.PutRequest;
-import io.github.chronosx88.JGUN.nodes.Peer;
 import io.github.chronosx88.JGUN.storage.Storage;
 
 import java.util.Map;
@@ -71,8 +71,11 @@ public class NetworkHandler {
                 response = handleGet((GetRequest) msg);
             } else if (msg instanceof PutRequest) {
                 response = handlePut((PutRequest) msg);
-            } else if (msg instanceof BaseAck) {
-                response = handleAck((BaseAck) msg);
+            } else if (msg instanceof Ack) {
+                handleAck((Ack) msg);
+            } else if (msg instanceof GetAck) {
+                var ack = (GetAck) msg;
+                handleGetAck(ack.getData(), ack);
             }
             if (Objects.nonNull(response)) {
                 String respString;
@@ -88,11 +91,16 @@ public class NetworkHandler {
     }
 
     private GetAck handleGet(GetRequest request) {
-        Node node = storage.getNode(request.getParams().getNodeID());
-        if (Objects.isNull(node)) return null;
+        Node node = storage.getNode(request.getParams().getNodeId(), request.getParams().getField());
+        if (Objects.isNull(node)) return GetAck.builder()
+                .id(Dup.random())
+                .replyTo(request.getId())
+                .data(new MemoryGraph())
+                .ok(true)
+                .build();
         String fieldName = request.getParams().getField();
         if (Objects.nonNull(fieldName)) {
-            Object fieldValue = node.getValues().get(fieldName);
+            NodeValue fieldValue = node.values.get(fieldName);
             if (Objects.nonNull(fieldValue)) {
                 node = Node.builder()
                         .values(Map.of(fieldName, fieldValue))
@@ -103,48 +111,46 @@ public class NetworkHandler {
                         .build();
             }
         }
+        MemoryGraph data = new MemoryGraph();
+        data.nodes = Map.of(node.getMetadata().getNodeID(), node);
         return GetAck.builder()
                 .id(Dup.random())
                 .replyTo(request.getId())
-                .data(MemoryGraph.builder()
-                        .nodes(Map.of(node.getMetadata().getNodeID(), node))
-                        .build())
+                .data(data)
                 .ok(true)
                 .build();
     }
 
-    private BaseAck handlePut(PutRequest request) {
+    private Ack handlePut(PutRequest request) {
         storage.mergeUpdate(request.getGraph());
-        return BaseAck.builder()
+
+        return Ack.builder()
                 .id(Dup.random())
                 .replyTo(request.getId())
                 .ok(true)
                 .build();
     }
 
-    private BaseAck handleAck(BaseAck ack) {
-        if (ack instanceof GetAck) {
-            FutureGet future = pendingGetRequests.get(ack.getReplyTo());
-            if (Objects.nonNull(future)) {
-                GetAck getAck = (GetAck) ack;
-                future.complete(GetResult.builder()
-                        .ok(getAck.isOk())
-                        .data(getAck.getData())
-                        .build());
-            }
-            return handlePut(PutRequest
-                    .builder()
-                    .graph(((GetAck) ack).getData())
+    private void handleGetAck(MemoryGraph graph, GetAck ack) {
+        storage.mergeUpdate(graph);
+        FutureGet future = pendingGetRequests.get(ack.getReplyTo());
+        if (future != null) {
+            GetAck getAck = (GetAck) ack;
+            Node node = storage.getNode(future.getParams().getNodeId(), future.getParams().getField());
+            future.complete(GetResult.builder()
+                    .ok(getAck.isOk())
+                    .data(node)
                     .build());
-        } else {
-            FuturePut future = pendingPutRequests.get(ack.getReplyTo());
-            if (Objects.nonNull(future)) {
-                future.complete(Result.builder()
-                        .ok(ack.isOk())
-                        .build());
-            }
-            System.out.println("Got ack! { #: '" + ack.getId() + "', @: '" + ack.getReplyTo() + "' }");
-            return null;
         }
+    }
+
+    private void handleAck(Ack ack) {
+        FuturePut future = pendingPutRequests.get(ack.getReplyTo());
+        if (Objects.nonNull(future)) {
+            future.complete(Result.builder()
+                    .ok(ack.isOk())
+                    .build());
+        }
+        System.out.println("Got ack! { #: '" + ack.getId() + "', @: '" + ack.getReplyTo() + "' }");
     }
 }

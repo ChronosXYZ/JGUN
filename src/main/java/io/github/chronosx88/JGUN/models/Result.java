@@ -1,7 +1,5 @@
-package io.github.chronosx88.JGUN.futures;
+package io.github.chronosx88.JGUN.models;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 

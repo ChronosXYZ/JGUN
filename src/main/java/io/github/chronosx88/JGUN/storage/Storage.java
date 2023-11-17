@@ -7,7 +7,7 @@ import io.github.chronosx88.JGUN.models.graph.NodeValue;
 import java.util.*;
 
 public abstract class Storage {
-    public abstract Node getNode(String id);
+    public abstract Node getNode(String id, String field);
 
     protected abstract void updateNode(Node node);
 
@@ -75,9 +75,9 @@ public abstract class Storage {
             NodeValue value = incomingNode.getValues().get(key);
             long state = incomingNode.getMetadata().getStates().get(key);
             long previousState = -1;
-            Object currentValue = null;
+            NodeValue currentValue = null;
             if (this.hasNode(incomingNode.getMetadata().getNodeID())) {
-                Node currentNode = this.getNode(incomingNode.getMetadata().getNodeID());
+                Node currentNode = this.getNode(incomingNode.getMetadata().getNodeID(), key);
                 Long prevStateFromStorage = currentNode.getMetadata().getStates().get(key);
                 if (!Objects.isNull(prevStateFromStorage)) {
                     previousState = prevStateFromStorage;

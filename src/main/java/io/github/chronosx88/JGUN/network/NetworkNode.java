@@ -1,9 +1,7 @@
-package io.github.chronosx88.JGUN.nodes;
+package io.github.chronosx88.JGUN.network;
 
-import io.github.chronosx88.JGUN.Dup;
-import io.github.chronosx88.JGUN.NetworkHandler;
-import io.github.chronosx88.JGUN.futures.FutureGet;
-import io.github.chronosx88.JGUN.futures.FuturePut;
+import io.github.chronosx88.JGUN.api.FutureGet;
+import io.github.chronosx88.JGUN.api.FuturePut;
 import io.github.chronosx88.JGUN.storage.Storage;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -12,12 +10,12 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class GunClient extends WebSocketClient implements Peer {
-    private Dup dup = new Dup(1000*9);
+public class NetworkNode extends WebSocketClient implements Peer {
     private final NetworkHandler handler;
 
-    public GunClient(InetAddress address, int port, Storage storage) throws URISyntaxException {
+    public NetworkNode(InetAddress address, int port, Storage storage) throws URISyntaxException {
         super(new URI("ws://" + address.getHostAddress() + ":" + port));
+        Dup dup = new Dup(1000 * 9);
         this.handler = new NetworkHandler(storage, this, dup);
     }
 
@@ -60,5 +58,10 @@ public class GunClient extends WebSocketClient implements Peer {
     @Override
     public void start() {
         this.connect();
+    }
+
+    @Override
+    public int getTimeout() {
+        return 60;
     }
 }

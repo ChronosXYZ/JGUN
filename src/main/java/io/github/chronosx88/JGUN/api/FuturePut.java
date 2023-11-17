@@ -1,4 +1,6 @@
-package io.github.chronosx88.JGUN.futures;
+package io.github.chronosx88.JGUN.api;
+
+import io.github.chronosx88.JGUN.models.Result;
 
 /**
  * Return success of PUT operation
