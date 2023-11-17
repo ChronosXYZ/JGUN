@@ -40,7 +40,7 @@ public class StorageManager {
     }
 
     public List<String> getPathData(String[] path) throws TimeoutException, ExecutionException, InterruptedException {
-        List<String> nodeIds = new ArrayList<>(List.of(path[0]));
+        List<String> nodeIds = new ArrayList<>();
         String nodeId = path[0];
         for (int i = 0; i < path.length; i++) {
             String field = null;
@@ -49,34 +49,29 @@ public class StorageManager {
             }
             Node node = storage.getNode(nodeId, field);
             if (node != null) {
-                if (field != null) {
-                    if (node.values.containsKey(field) && node.values.get(field).getValueType() == NodeValue.ValueType.LINK) {
-                        nodeId = ((NodeLinkValue) node.values.get(field)).getLink();
-                        nodeIds.add(nodeId);
-                        continue;
-                    }
-                } else {
+                if (field == null) {
+                    nodeIds.add(nodeId);
                     break;
                 }
+                if (node.values.containsKey(field) && node.values.get(field).getValueType() == NodeValue.ValueType.LINK) {
+                    nodeId = ((NodeLinkValue) node.values.get(field)).getLink();
+                    nodeIds.add(nodeId);
+                    continue;
+                }
             }
-
+            // proceeds to request from the network
             var future = this.networkManager.sendGetRequest(GetRequestParams.builder()
                             .nodeId(nodeId)
                             .field(field)
                             .build());
             var result = future.get(networkManager.getTimeout(), TimeUnit.SECONDS);
-            if (result.getData() != null) {
-                nodeIds.add(result.getData().getMetadata().getNodeID());
-                if (field != null) {
-                    if (result.getData().values.containsKey(field) && result.getData().values.get(field).getValueType() == NodeValue.ValueType.LINK) {
-                        nodeId = ((NodeLinkValue) result.getData().values.get(field)).getLink();
-                        nodeIds.add(nodeId);
-                    }
-                } else {
-                    break;
-                }
-            } else {
+            if (result.getData() == null || field == null) {
+                nodeIds.add(nodeId);
                 break;
+            }
+            if (result.getData().values.containsKey(field) && result.getData().values.get(field).getValueType() == NodeValue.ValueType.LINK) {
+                nodeId = ((NodeLinkValue) result.getData().values.get(field)).getLink();
+                nodeIds.add(nodeId);
             }
         }
         return nodeIds;

@@ -74,4 +74,9 @@ public class GatewayNetworkNode extends WebSocketServer implements Peer {
     public int connectedPeerCount() {
         return this.getConnections().size();
     }
+
+    @Override
+    public NetworkHandler getNetworkHandler() {
+        return handler;
+    }
 }

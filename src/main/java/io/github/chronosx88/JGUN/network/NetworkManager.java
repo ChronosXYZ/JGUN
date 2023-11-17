@@ -21,6 +21,7 @@ public class NetworkManager {
     private final ObjectMapper objectMapper;
 
     private final Peer peer;
+    private final NetworkHandler networkHandler;
 
     private final Executor executorService = Executors.newCachedThreadPool();
 
@@ -30,15 +31,16 @@ public class NetworkManager {
     @Getter
     private final int timeout;
 
-    public NetworkManager(Peer peer) {
+    public NetworkManager(Peer peer, NetworkHandler networkHandler) {
+        this.networkHandler = networkHandler;
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new Jdk8Module());
         this.peer = peer;
         this.timeout = peer.getTimeout();
     }
 
-    public void start() {
-        executorService.execute(this.peer::start);
+    public void start() throws InterruptedException {
+        this.peer.start();
     }
 
     private <T extends Request> void sendRequest(T request) {
@@ -48,6 +50,7 @@ public class NetworkManager {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+        this.networkHandler.getDup().track(request.getId());
         peer.emit(encodedRequest);
     }
 

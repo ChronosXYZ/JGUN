@@ -21,7 +21,7 @@ public class NetworkNode extends WebSocketClient implements Peer {
 
     @Override
     public void onOpen(ServerHandshake handshakeData) {
-        System.out.println("# Connection with SuperNode open. Status: " + handshakeData.getHttpStatus());
+        System.out.println("# Connection with gateway node is open. Status: " + handshakeData.getHttpStatus());
     }
 
     @Override
@@ -56,8 +56,8 @@ public class NetworkNode extends WebSocketClient implements Peer {
     }
 
     @Override
-    public void start() {
-        this.connect();
+    public void start() throws InterruptedException {
+        this.connectBlocking();
     }
 
     @Override
@@ -69,5 +69,10 @@ public class NetworkNode extends WebSocketClient implements Peer {
     public int connectedPeerCount() {
         if (this.isOpen()) return 1;
         return 0;
+    }
+
+    @Override
+    public NetworkHandler getNetworkHandler() {
+        return handler;
     }
 }

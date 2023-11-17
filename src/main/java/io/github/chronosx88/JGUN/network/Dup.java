@@ -16,11 +16,11 @@ public class Dup {
                 .build();
     }
 
-    private void track(String id) {
+    public void track(String id) {
         cache.put(id, System.currentTimeMillis());
     }
 
-    public boolean isDuplicated(String id) {
+    public boolean checkDuplicated(String id) {
         Long timestamp = null;
         try {
             timestamp = cache.getIfPresent(id);

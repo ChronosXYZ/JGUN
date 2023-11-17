@@ -17,6 +17,7 @@ import io.github.chronosx88.JGUN.models.graph.NodeValue;
 import io.github.chronosx88.JGUN.models.requests.GetRequest;
 import io.github.chronosx88.JGUN.models.requests.PutRequest;
 import io.github.chronosx88.JGUN.storage.Storage;
+import lombok.Getter;
 
 import java.util.Map;
 import java.util.Objects;
@@ -30,6 +31,8 @@ public class NetworkHandler {
 
     private final Peer peer;
     private final Storage storage;
+
+    @Getter
     private final Dup dup;
     private final Executor executorService = Executors.newCachedThreadPool();
     private final ObjectMapper objectMapper;
@@ -59,7 +62,7 @@ public class NetworkHandler {
             throw new RuntimeException(e);
         }
 
-        if (dup.isDuplicated(parsedMessage.getId())) {
+        if (dup.checkDuplicated(parsedMessage.getId())) {
             // TODO log
             return;
         }
@@ -78,6 +81,7 @@ public class NetworkHandler {
                 handleGetAck(ack.getData(), ack);
             }
             if (Objects.nonNull(response)) {
+                this.dup.track(response.getId());
                 String respString;
                 try {
                     respString = objectMapper.writeValueAsString(response);

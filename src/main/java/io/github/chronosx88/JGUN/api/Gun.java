@@ -9,8 +9,8 @@ public class Gun {
     private final StorageManager storageManager;
     private final NetworkManager networkManager;
 
-    public Gun(Storage storage, Peer peer) {
-        this.networkManager = new NetworkManager(peer);
+    public Gun(Storage storage, Peer peer) throws InterruptedException {
+        this.networkManager = new NetworkManager(peer, peer.getNetworkHandler());
         this.storageManager = new StorageManager(storage, this.networkManager);
         this.networkManager.start();
     }

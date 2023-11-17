@@ -7,7 +7,8 @@ public interface Peer {
     void emit(String data);
     void addPendingPutRequest(FuturePut futurePut);
     void addPendingGetRequest(FutureGet futureGet);
-    void start();
+    void start() throws InterruptedException;
     int getTimeout();
     int connectedPeerCount();
+    NetworkHandler getNetworkHandler();
 }

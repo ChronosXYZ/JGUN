@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
 import io.github.chronosx88.JGUN.models.graph.DeferredNode;
 import io.github.chronosx88.JGUN.models.graph.Node;
+import io.github.chronosx88.JGUN.models.graph.NodeMetadata;
 import io.github.chronosx88.JGUN.models.graph.NodeValue;
 import org.checkerframework.checker.index.qual.NonNegative;
 
@@ -46,21 +47,23 @@ public class MemoryStorage extends Storage {
         if (node != null && field != null) {
             NodeValue requestedField = node.getValues().get(field);
             if (requestedField != null) {
-                Long requestedFieldState = node.getMetadata().getStates().get(field);
-                node.getValues().clear();
-                node.getMetadata().getStates().clear();
-                node.getValues().put(field, requestedField);
-                node.getMetadata().getStates().put(field, requestedFieldState);
+                node = Node.builder()
+                        .metadata(NodeMetadata.builder()
+                                .nodeID(node.getMetadata().getNodeID())
+                                .states(Map.of(field, node.getMetadata().getStates().get(field)))
+                                .build())
+                        .values(Map.of(field, requestedField))
+                        .build();
             }
         }
         return node;
     }
 
     @Override
-    protected void updateNode(Node node) {
-        Node currentNode = nodes.get(node.getMetadata().getNodeID());
-        currentNode.values.putAll(node.values);
-        currentNode.getMetadata().getStates().putAll(node.getMetadata().getStates());
+    protected void updateNode(Node newNode) {
+        Node currentNode = nodes.get(newNode.getMetadata().getNodeID());
+        currentNode.values.putAll(newNode.values);
+        currentNode.getMetadata().getStates().putAll(newNode.getMetadata().getStates());
     }
 
     public void addNode(String id, Node incomingNode) {

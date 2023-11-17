@@ -95,7 +95,7 @@ public abstract class Storage {
                 continue;
             }
 
-            if (Objects.isNull(changedNode)) {
+            if (changedNode == null) {
                 changedNode = Node.builder()
                         .metadata(NodeMetadata.builder()
                                 .nodeID(incomingNode.getMetadata().getNodeID())

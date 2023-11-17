@@ -19,21 +19,13 @@ public class MainClient {
         NetworkNode peer = new NetworkNode(Inet4Address.getByAddress(new byte[]{127, 0, 0, 1}), 5054, storage);
         Gun gun = new Gun(storage, peer);
         Result result = gun.get("person").put(new NodeBuilder()
-                .add("firstName", "John")
-                .add("lastName", "Smith")
-                .add("age", 25)
-                .add("address", new NodeBuilder()
-                        .add("streetAddress", "21 2nd Street")
-                        .add("city", "New York")
-                        .add("state", "NY")
-                        .add("postalCode", "10021"))
-                .add("phoneNumber", new ArrayBuilder()
-                        .add(new NodeBuilder()
-                                .add("type", "home")
-                                .add("number", "212 555-1234"))
-                        .add(new NodeBuilder()
-                                .add("type", "fax")
-                                .add("number", "646 555-4567")))
+                .add("firstName", "ABCD")
+                .build()).get();
+        System.out.println(result);
+        result = gun.get("person").get("address").put(new NodeBuilder()
+                .add("city", "HUY")
+                .add("ZIP", new NodeBuilder()
+                        .add("post", "pochta rossii"))
                 .build()).get();
         System.out.println(result);
     }

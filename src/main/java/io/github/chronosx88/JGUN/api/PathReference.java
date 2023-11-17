@@ -12,10 +12,7 @@ import io.github.chronosx88.JGUN.network.NetworkManager;
 import io.github.chronosx88.JGUN.storage.StorageManager;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.stream.Stream;
 
 public class PathReference {
@@ -23,6 +20,7 @@ public class PathReference {
 
     private final NetworkManager networkManager;
     private final StorageManager storageManager;
+    private final Executor executorService = Executors.newCachedThreadPool();
 
     public PathReference(NetworkManager networkManager, StorageManager storageManager) {
         this.networkManager = networkManager;
@@ -85,36 +83,41 @@ public class PathReference {
                                     .build());
                             nodeId = newNodeId;
                         }
+                        graph.nodes.get(NodeBuilder.ROOT_NODE).getMetadata().setNodeID(newNodeId);
+                        graph.nodes.put(newNodeId, graph.nodes.get(NodeBuilder.ROOT_NODE));
+                        graph.nodes.remove(NodeBuilder.ROOT_NODE);
                     } else {
-                        newNodeId = UUID.randomUUID().toString();
-                        if (pathData.size() > 1) {
-                            String parentNodeId = pathData.get(pathData.size()-2);
-                            graph.putNodes(parentNodeId, Node.builder()
-                                    .metadata(NodeMetadata.builder()
-                                            .nodeID(parentNodeId)
-                                            .states(Map.of(path.get(path.size()-1), System.currentTimeMillis()))
-                                            .build())
-                                    .values(Map.of(path.get(path.size()-1), NodeLinkValue.builder()
-                                            .link(newNodeId)
-                                            .build()))
-                                    .build());
-                        } else {
-                            newNodeId = pathData.get(0);
-                        }
-
+                        // merge updated node under parent ID
+                        String parentNodeId = pathData.get(pathData.size()-1);
+                        graph.nodes.get(NodeBuilder.ROOT_NODE).getMetadata().setNodeID(parentNodeId);
+                        graph.nodes.put(parentNodeId, graph.nodes.get(NodeBuilder.ROOT_NODE));
                     }
-                    graph.nodes.get(NodeBuilder.ROOT_NODE).getMetadata().setNodeID(newNodeId);
-                    graph.nodes.put(newNodeId, graph.nodes.get(NodeBuilder.ROOT_NODE));
                     graph.nodes.remove(NodeBuilder.ROOT_NODE);
                     return this.storageManager.putData(graph);
                 });
     }
 
     public void on(NodeChangeListener changeListener) {
-        storageManager.addChangeListener(String.join("/", path), changeListener);
+        executorService.execute(() -> {
+            List<String> pathData;
+            try {
+                pathData = storageManager.getPathData(path.toArray(new String[0]));
+            } catch (TimeoutException | ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            storageManager.addChangeListener(pathData.get(pathData.size()-1), changeListener);
+        });
     }
 
-    public void map(NodeChangeListener.Map forEachListener) {
-        storageManager.addMapChangeListener(String.join("/", path), forEachListener);
+    public void map(NodeChangeListener.Map mapListener) {
+        executorService.execute(() -> {
+            List<String> pathData;
+            try {
+                pathData = storageManager.getPathData(path.toArray(new String[0]));
+            } catch (TimeoutException | ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            storageManager.addMapChangeListener(pathData.get(pathData.size()-1), mapListener);
+        });
     }
 }
