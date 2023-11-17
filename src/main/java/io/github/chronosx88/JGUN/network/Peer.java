@@ -9,4 +9,5 @@ public interface Peer {
     void addPendingGetRequest(FutureGet futureGet);
     void start();
     int getTimeout();
+    int connectedPeerCount();
 }

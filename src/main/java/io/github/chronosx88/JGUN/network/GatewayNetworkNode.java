@@ -69,4 +69,9 @@ public class GatewayNetworkNode extends WebSocketServer implements Peer {
     public int getTimeout() {
         return 60;
     }
+
+    @Override
+    public int connectedPeerCount() {
+        return this.getConnections().size();
+    }
 }

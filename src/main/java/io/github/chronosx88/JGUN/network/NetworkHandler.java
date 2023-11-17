@@ -7,7 +7,7 @@ import io.github.chronosx88.JGUN.api.FutureGet;
 import io.github.chronosx88.JGUN.api.FuturePut;
 import io.github.chronosx88.JGUN.models.GetResult;
 import io.github.chronosx88.JGUN.models.Result;
-import io.github.chronosx88.JGUN.models.BaseMessage;
+import io.github.chronosx88.JGUN.models.NetworkMessage;
 import io.github.chronosx88.JGUN.models.graph.MemoryGraph;
 import io.github.chronosx88.JGUN.models.graph.Node;
 import io.github.chronosx88.JGUN.models.graph.NodeMetadata;
@@ -52,9 +52,9 @@ public class NetworkHandler {
     }
 
     public void handleIncomingMessage(String message) {
-        BaseMessage parsedMessage;
+        NetworkMessage parsedMessage;
         try {
-            parsedMessage = objectMapper.readValue(message, BaseMessage.class);
+            parsedMessage = objectMapper.readValue(message, NetworkMessage.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -64,9 +64,9 @@ public class NetworkHandler {
             return;
         }
 
-        final BaseMessage msg = parsedMessage;
+        final NetworkMessage msg = parsedMessage;
         executorService.execute(() -> {
-            BaseMessage response = null;
+            NetworkMessage response = null;
             if (msg instanceof GetRequest) {
                 response = handleGet((GetRequest) msg);
             } else if (msg instanceof PutRequest) {

@@ -12,15 +12,9 @@ import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
-@JsonSubTypes({
-        @JsonSubTypes.Type(GetRequest.class),
-        @JsonSubTypes.Type(PutRequest.class),
-        @JsonSubTypes.Type(Ack.class),
-        @JsonSubTypes.Type(GetAck.class)
-})
+@JsonDeserialize(using = NetworkMessageDeserializer.class)
 @SuperBuilder
-public abstract class BaseMessage {
+public abstract class NetworkMessage {
     @JsonProperty("#")
     private String id;
 }

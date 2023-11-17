@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.github.chronosx88.JGUN.api.FutureGet;
 import io.github.chronosx88.JGUN.api.FuturePut;
+import io.github.chronosx88.JGUN.models.GetResult;
+import io.github.chronosx88.JGUN.models.Result;
 import io.github.chronosx88.JGUN.models.graph.MemoryGraph;
 import io.github.chronosx88.JGUN.models.requests.GetRequest;
 import io.github.chronosx88.JGUN.models.requests.GetRequestParams;
@@ -51,23 +53,30 @@ public class NetworkManager {
 
     public FuturePut sendPutRequest(MemoryGraph putData) {
         String id = Dup.random();
-        executorService.execute(() -> this.sendRequest(PutRequest.builder()
-                .id(id)
-                .graph(putData)
-                .build()));
         var requestFuture = new FuturePut(id);
-        peer.addPendingPutRequest(requestFuture);
+        if (this.peer.connectedPeerCount() > 0) {
+            executorService.execute(() -> this.sendRequest(PutRequest.builder()
+                    .id(id)
+                    .graph(putData)
+                    .build()));
+            peer.addPendingPutRequest(requestFuture);
+        }
+        requestFuture.complete(Result.builder().ok(true).build());
         return requestFuture;
     }
 
     public FutureGet sendGetRequest(GetRequestParams params) {
         String id = Dup.random();
-        executorService.execute(() -> this.sendRequest(GetRequest.builder()
-                .id(id)
-                .params(params)
-                .build()));
         var requestFuture = new FutureGet(id, params);
-        peer.addPendingGetRequest(requestFuture);
+        if (this.peer.connectedPeerCount() > 0) {
+            executorService.execute(() -> this.sendRequest(GetRequest.builder()
+                    .id(id)
+                    .params(params)
+                    .build()));
+            peer.addPendingGetRequest(requestFuture);
+        } else {
+            requestFuture.complete(GetResult.builder().data(null).build());
+        }
         return requestFuture;
     }
 }

@@ -64,4 +64,10 @@ public class NetworkNode extends WebSocketClient implements Peer {
     public int getTimeout() {
         return 60;
     }
+
+    @Override
+    public int connectedPeerCount() {
+        if (this.isOpen()) return 1;
+        return 0;
+    }
 }
