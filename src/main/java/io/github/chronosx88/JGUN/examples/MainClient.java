@@ -18,14 +18,22 @@ public class MainClient {
         Storage storage = new MemoryStorage();
         NetworkNode peer = new NetworkNode(Inet4Address.getByAddress(new byte[]{127, 0, 0, 1}), 5054, storage);
         Gun gun = new Gun(storage, peer);
+
         Result result = gun.get("person").put(new NodeBuilder()
-                .add("firstName", "ABCD")
+                .add("firstName", "Test")
                 .build()).get();
         System.out.println(result);
+
         result = gun.get("person").get("address").put(new NodeBuilder()
-                .add("city", "HUY")
-                .add("ZIP", new NodeBuilder()
-                        .add("post", "pochta rossii"))
+                .add("city", "Dallas")
+                .build()).get();
+        System.out.println(result);
+
+        result = gun.get("person").get("homeAddress").put(gun.get("person").get("address")).get();
+        System.out.println(result);
+
+        result = gun.get("person").get("homeAddress").put(new NodeBuilder()
+                .add("city", "New YORK CITY")
                 .build()).get();
         System.out.println(result);
     }

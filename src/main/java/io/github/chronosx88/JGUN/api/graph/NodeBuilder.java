@@ -91,6 +91,10 @@ public class NodeBuilder {
         return this;
     }
 
+    public NodeBuilder add(String name, NodeLinkValue link) {
+        return addScalar(name, link);
+    }
+
     public MemoryGraph build() {
         return this.graph;
     }

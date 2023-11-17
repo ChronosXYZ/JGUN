@@ -27,6 +27,10 @@ public class PathReference {
         this.storageManager = storageManager;
     }
 
+    public String[] getPath() {
+        return path.toArray(new String[0]);
+    }
+
     public PathReference get(String key) {
         path.add(key);
         return this;
@@ -118,6 +122,29 @@ public class PathReference {
                 throw new RuntimeException(e);
             }
             storageManager.addMapChangeListener(pathData.get(pathData.size()-1), mapListener);
+        });
+    }
+
+    public CompletableFuture<Result> put(PathReference nodeReference) {
+        String[] pathToAnotherNode = nodeReference.getPath();
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return storageManager.getPathData(pathToAnotherNode);
+            } catch (TimeoutException | ExecutionException | InterruptedException e) {
+                throw new CompletionException(e);
+            }
+        }).thenComposeAsync(pathData -> {
+            if (pathData.size() < pathToAnotherNode.length) {
+                return CompletableFuture.failedFuture(new IllegalArgumentException("target node not found"));
+            }
+            String nodeId = pathData.get(pathData.size()-1);
+            MemoryGraph graph = new NodeBuilder()
+                    .add(path.get(path.size() - 1), NodeLinkValue.builder()
+                            .link(nodeId)
+                            .build())
+                    .build();
+            if (path.size() > 1) this.path.remove(path.size()-1);
+            return this.put(graph);
         });
     }
 }
