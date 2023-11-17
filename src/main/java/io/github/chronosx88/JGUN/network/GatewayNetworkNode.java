@@ -57,12 +57,12 @@ public class GatewayNetworkNode extends WebSocketServer implements Peer {
 
     @Override
     public void addPendingPutRequest(FuturePut futurePut) {
-        throw new UnsupportedOperationException("TODO"); // TODO
+        this.handler.addPendingPutRequest(futurePut);
     }
 
     @Override
     public void addPendingGetRequest(FutureGet futureGet) {
-        throw new UnsupportedOperationException("TODO"); // TODO
+        this.handler.addPendingGetRequest(futureGet);
     }
 
     @Override
