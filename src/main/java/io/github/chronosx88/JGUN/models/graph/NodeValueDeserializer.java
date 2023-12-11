@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.chronosx88.JGUN.models.graph.values.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class NodeValueDeserializer extends JsonDeserializer<NodeValue> {
     @Override

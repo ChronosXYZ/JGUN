@@ -1,2 +1,4 @@
 rootProject.name = 'JGUN'
+include 'examples:chat'
+findProject(':examples:chat')?.name = 'chat'
 

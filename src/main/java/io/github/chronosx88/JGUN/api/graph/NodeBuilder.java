@@ -6,7 +6,6 @@ import io.github.chronosx88.JGUN.models.graph.NodeValue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
 import java.util.UUID;
 
 public class NodeBuilder {

@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

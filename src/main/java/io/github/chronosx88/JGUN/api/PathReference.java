@@ -13,7 +13,6 @@ import io.github.chronosx88.JGUN.storage.StorageManager;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Stream;
 
 public class PathReference {
     private final List<String> path = new ArrayList<>();
