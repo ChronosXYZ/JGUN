@@ -7,6 +7,7 @@ import io.github.chronosx88.JGUN.models.graph.DeferredNode;
 import io.github.chronosx88.JGUN.models.graph.Node;
 import io.github.chronosx88.JGUN.models.graph.NodeMetadata;
 import io.github.chronosx88.JGUN.models.graph.NodeValue;
+import io.github.chronosx88.JGUN.models.graph.values.ArrayValue;
 import org.checkerframework.checker.index.qual.NonNegative;
 
 import java.util.Collection;
@@ -62,6 +63,14 @@ public class MemoryStorage extends Storage {
     @Override
     protected void updateNode(Node newNode) {
         Node currentNode = nodes.get(newNode.getMetadata().getNodeID());
+        newNode.values.forEach((k, v) -> {
+            if (v.getValueType() != NodeValue.ValueType.ARRAY) return;
+            var currentValue = currentNode.getValues().get(k);
+            if (currentValue.getValueType() != NodeValue.ValueType.ARRAY) return;
+            ArrayValue currentArrayValue = (ArrayValue) currentValue;
+            currentArrayValue.getValue().addAll(((ArrayValue) v).getValue());
+            newNode.getValues().put(k, currentArrayValue);
+        });
         currentNode.values.putAll(newNode.values);
         currentNode.getMetadata().getStates().putAll(newNode.getMetadata().getStates());
     }

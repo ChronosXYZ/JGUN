@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
 public class ArrayValue implements NodeValue {
     @JsonValue
     private List<NodeValue> value = new ArrayList<>();
@@ -22,6 +21,10 @@ public class ArrayValue implements NodeValue {
 
     public ArrayValue(List<NodeValue> value) {
         this.value = value;
+    }
+
+    public ArrayValue() {
+        this.value = new ArrayList<>();
     }
 
     @Override

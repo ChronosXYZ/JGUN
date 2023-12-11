@@ -31,11 +31,7 @@ public class HAM {
             result.incoming = true;
             return result;
         } else { // if incoming state and current state is the same
-            if (incomingValue.equals(currentValue)) {
-                result.current = true;
-                return result;
-            }
-            result.incoming = true; // always update local value with incoming value if state is the same
+            result.incoming = false; // don't update local value with incoming value if state is the same
             return result;
         }
     }

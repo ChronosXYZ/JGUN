@@ -109,6 +109,7 @@ public class PathReference {
                 throw new RuntimeException(e);
             }
             storageManager.addChangeListener(pathData.get(pathData.size()-1), changeListener);
+            this.once().thenAccept(res -> changeListener.onChange(res.getData()));
         });
     }
 
@@ -121,6 +122,10 @@ public class PathReference {
                 throw new RuntimeException(e);
             }
             storageManager.addMapChangeListener(pathData.get(pathData.size()-1), mapListener);
+            this.once().thenAccept(res -> {
+                var node = res.getData();
+                node.getValues().forEach(mapListener::onChange);
+            });
         });
     }
 

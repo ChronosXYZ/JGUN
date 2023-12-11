@@ -35,4 +35,14 @@ public class Node {
     public void allSetter(String key, NodeValue value) {
         values.put(key, value);
     }
+
+    @Override
+    public Node clone() {
+        return Node.builder()
+                .metadata(NodeMetadata.builder()
+                        .nodeID(new String(this.getMetadata().getNodeID()))
+                        .states(new LinkedHashMap<>(this.getMetadata().getStates())).build())
+                .values(new LinkedHashMap<>(this.getValues()))
+                .build();
+    }
 }

@@ -45,10 +45,11 @@ public abstract class Storage {
         if (!diff.nodes.isEmpty()) {
             for (Map.Entry<String, Node> diffEntry : diff.getNodes().entrySet()) {
                 Node changedNode = diffEntry.getValue();
+                var changedNodeClone = changedNode.clone();
                 if (!this.hasNode(changedNode.getMetadata().getNodeID())) {
-                    this.addNode(changedNode.getMetadata().getNodeID(), changedNode);
+                    this.addNode(changedNodeClone.getMetadata().getNodeID(), changedNodeClone);
                 } else {
-                    this.updateNode(changedNode);
+                    this.updateNode(changedNodeClone);
                 }
 
                 if (changeListeners.containsKey(diffEntry.getKey())) {
@@ -56,7 +57,7 @@ public abstract class Storage {
                 }
                 if (mapChangeListeners.containsKey(diffEntry.getKey())) {
                     for (Map.Entry<String, NodeValue> nodeEntry : changedNode.getValues().entrySet()) {
-                        mapChangeListeners.get(nodeEntry.getKey()).forEach((e) -> e.onChange(nodeEntry.getKey(), nodeEntry.getValue()));
+                        mapChangeListeners.get(diffEntry.getKey()).forEach((e) -> e.onChange(nodeEntry.getKey(), nodeEntry.getValue()));
                     }
                 }
             }
@@ -104,12 +105,6 @@ public abstract class Storage {
                         .build();
             }
 
-            if (value.getValueType() == NodeValue.ValueType.ARRAY) {
-                // handle appending element to array instead of rewriting
-                ArrayValue array = (ArrayValue) changedNode.getValues().getOrDefault(key, new ArrayValue(List.of()));
-                array.getValue().addAll(((ArrayValue) value).getValue());
-                value = array;
-            }
             changedNode.getValues().put(key, value);
             changedNode.getMetadata().getStates().put(key, state);
         }
