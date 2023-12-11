@@ -17,7 +17,6 @@ repositories {
 dependencies {
     api 'org.java-websocket:Java-WebSocket:1.5.4'
     compileOnly 'org.java-websocket:Java-WebSocket:1.5.4'
-    implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.15.3'
     implementation 'com.github.ben-manes.caffeine:jcache:3.1.5'

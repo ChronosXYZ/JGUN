@@ -26,8 +26,8 @@ public class GatewayNetworkNode extends WebSocketServer implements Peer {
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        if(conn != null) {
-            System.out.println("Peer " + conn.getRemoteSocketAddress().toString() + " closed the connection for reason (code): " + reason + " (" + code + ")");
+        if (conn != null) {
+            System.out.println("Peer " + conn + " closed the connection for reason (code): " + reason + " (" + code + ")");
         }
     }
 
@@ -38,7 +38,7 @@ public class GatewayNetworkNode extends WebSocketServer implements Peer {
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
-        if(conn != null) {
+        if (conn != null) {
             System.out.println("# Exception occurred on connection: " + conn.getRemoteSocketAddress());
         }
         ex.printStackTrace();
@@ -50,7 +50,7 @@ public class GatewayNetworkNode extends WebSocketServer implements Peer {
     }
 
     public void emit(String data) {
-        for(WebSocket conn : this.getConnections()) {
+        for (WebSocket conn : this.getConnections()) {
             conn.send(data);
         }
     }
