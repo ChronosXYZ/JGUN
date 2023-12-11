@@ -3,6 +3,7 @@ package io.github.chronosx88.JGUN.storage;
 import io.github.chronosx88.JGUN.api.NodeChangeListener;
 import io.github.chronosx88.JGUN.models.graph.*;
 import io.github.chronosx88.JGUN.models.graph.NodeValue;
+import io.github.chronosx88.JGUN.models.graph.values.ArrayValue;
 
 import java.util.*;
 
@@ -17,7 +18,7 @@ public abstract class Storage {
 
     public abstract Set<Map.Entry<String, Node>> entries();
 
-    public  abstract Collection<Node> nodes();
+    public abstract Collection<Node> nodes();
 
     public abstract boolean isEmpty();
 
@@ -102,7 +103,14 @@ public abstract class Storage {
                                 .build())
                         .build();
             }
-            changedNode.values.put(key, value);
+
+            if (value.getValueType() == NodeValue.ValueType.ARRAY) {
+                // handle appending element to array instead of rewriting
+                ArrayValue array = (ArrayValue) changedNode.getValues().getOrDefault(key, new ArrayValue(List.of()));
+                array.getValue().addAll(((ArrayValue) value).getValue());
+                value = array;
+            }
+            changedNode.getValues().put(key, value);
             changedNode.getMetadata().getStates().put(key, state);
         }
 
